@@ -118,8 +118,6 @@ public class ImageProcessor extends FunctioalForEachLoops {
 		BufferedImage ans = newEmptyOutputSizedImage();
 		float ratioX = (float)workingImage.getWidth() / ans.getWidth();
 		float ratioY = (float)workingImage.getHeight() / ans.getHeight();
-		logger.log(ratioX);
-		logger.log(ratioY);
 		setForEachOutputParameters();
 		
 		forEach((y,x) -> {
@@ -133,8 +131,30 @@ public class ImageProcessor extends FunctioalForEachLoops {
 	}
 	
 	public BufferedImage bilinear() {
-		//TODO: Implement this method, remove the exception.
-		throw new UnimplementedMethodException("bilinear");
+		logger.log("Resizing by billinear");
+		
+		BufferedImage ans = newEmptyOutputSizedImage();
+		double ratioX = (double)workingImage.getWidth() / ans.getWidth();
+		double ratioY = (double)workingImage.getHeight() / ans.getHeight();
+		setForEachOutputParameters();
+		
+		forEach((y,x) -> {
+			int roundupX = (int) Math.ceil(x*ratioX) -1;
+			int roundupY = (int) Math.ceil(y*ratioY) -1;
+			int rounddownX = roundupX > 0 ? roundupX -1 : 1;  
+			int rounddownY = roundupY > 0 ? roundupY -1 : 1;
+			Color p11 = new Color(workingImage.getRGB(roundupX,roundupY));
+			Color p01 = new Color(workingImage.getRGB(rounddownX,roundupY));
+			Color p10 = new Color(workingImage.getRGB(roundupX,rounddownY));
+			Color p00 = new Color(workingImage.getRGB(rounddownX,rounddownY));
+			int r = (p11.getRed() + p01.getRed() + p10.getRed() + p00.getRed())/4;
+			int g = (p11.getGreen() + p01.getGreen() + p10.getGreen() + p00.getGreen())/4;
+			int b = (p11.getBlue() + p01.getBlue() + p10.getBlue() + p00.getBlue())/4;
+			Color neighbor = new Color(r,g,b);
+			ans.setRGB(x, y, neighbor.getRGB());
+		});
+		
+		return ans;
 	}
 	
 	
