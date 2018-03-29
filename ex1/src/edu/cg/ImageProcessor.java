@@ -91,13 +91,45 @@ public class ImageProcessor extends FunctioalForEachLoops {
 	}
 
 	public BufferedImage gradientMagnitude() {
-		//TODO: Implement this method, remove the exception.
-		throw new UnimplementedMethodException("gradientMagnitude");
+		logger.log("Computing gradient magnitude...");
+
+		BufferedImage greyscale = greyscale();
+		BufferedImage ans = newEmptyInputSizedImage();
+		forEach((y, x) -> {
+			int magnitdue = 0;
+			int current = new Color(greyscale.getRGB(x, y)).getRed();
+			int dx = x < getForEachWidth() -1 ?
+					new Color(greyscale.getRGB(x+1, y)).getRed() - current
+					: new Color(greyscale.getRGB(x-1, y)).getRed() - current;
+			int dy = y < getForEachHeight() -1 ?
+					new Color(greyscale.getRGB(x, y+1)).getRed() - current
+					: new Color(greyscale.getRGB(x, y-1)).getRed() - current;
+			magnitdue = (int)Math.sqrt((dx*dx + dy*dy)/2);
+			Color color = new Color(magnitdue, magnitdue, magnitdue);
+			ans.setRGB(x, y, color.getRGB());
+		});
+
+		return ans;
 	}
 	
 	public BufferedImage nearestNeighbor() {
-		//TODO: Implement this method, remove the exception.
-		throw new UnimplementedMethodException("nearestNeighbor");
+		logger.log("Resizing by nearest neighbor");
+		
+		BufferedImage ans = newEmptyOutputSizedImage();
+		float ratioX = (float)workingImage.getWidth() / ans.getWidth();
+		float ratioY = (float)workingImage.getHeight() / ans.getHeight();
+		logger.log(ratioX);
+		logger.log(ratioY);
+		setForEachOutputParameters();
+		
+		forEach((y,x) -> {
+			int nearestX = Math.round(x*ratioX);
+			int nearestY = Math.round(y*ratioY);
+			Color neighbor = new Color(workingImage.getRGB(nearestX, nearestY));
+			ans.setRGB(x, y, neighbor.getRGB());
+		});
+		
+		return ans;
 	}
 	
 	public BufferedImage bilinear() {
