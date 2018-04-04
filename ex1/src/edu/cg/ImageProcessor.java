@@ -139,10 +139,12 @@ public class ImageProcessor extends FunctioalForEachLoops {
 		setForEachOutputParameters();
 		
 		forEach((y,x) -> {
-			int roundupX = (int) Math.ceil(x*ratioX) -1;
-			int roundupY = (int) Math.ceil(y*ratioY) -1;
-			int rounddownX = roundupX > 0 ? roundupX -1 : 1;  
-			int rounddownY = roundupY > 0 ? roundupY -1 : 1;
+			double transformationX = x*ratioX;
+			double transformationY = y*ratioY;
+			int roundupX = Math.min((int)Math.ceil(transformationX),workingImage.getWidth() -1);
+			int roundupY = Math.min((int)Math.ceil(transformationY),workingImage.getHeight() -1) ;
+			int rounddownX = (int)Math.floor(transformationX);
+			int rounddownY = (int)Math.floor(transformationY);
 			Color p11 = new Color(workingImage.getRGB(roundupX,roundupY));
 			Color p01 = new Color(workingImage.getRGB(rounddownX,roundupY));
 			Color p10 = new Color(workingImage.getRGB(roundupX,rounddownY));
