@@ -54,7 +54,6 @@ public class SeamsCarver extends ImageProcessor {
 			e[x][y] = new Color(gradientMag.getRGB(x, y)).getRed();
 		});
 		logger.log("done intializing");
-		// TODO: add iterator for number of seams k
 		// Run matrix
 		logger.log("dim y:" + m.length + " dim x:" + m[0].length);
 		for(int y=1;y<m.length;y++) {
