@@ -16,7 +16,7 @@ public class SeamsCarver extends ImageProcessor {
 	private int numOfSeams;
 	private ResizeOperation resizeOp;
 	private long[][] m;
-	private long[][] i;
+	private long[][] e;
 	private Collection seams;
 	
 	//TODO: Add some additional fields:
@@ -48,42 +48,40 @@ public class SeamsCarver extends ImageProcessor {
 		
 		// Initialize both previous and current matrices as gradient magnitude.
 		m = new long[gradientMag.getWidth()][gradientMag.getHeight()];
-		i = new long[gradientMag.getWidth()][gradientMag.getHeight()];
-		logger.log("starting to copy matrix");
+		e = new long[gradientMag.getWidth()][gradientMag.getHeight()];
 		forEach((y,x) -> {
 			m[x][y] = new Color(gradientMag.getRGB(x, y)).getRed();
-			i[x][y] = new Color(gradientMag.getRGB(x, y)).getRed();
+			e[x][y] = new Color(gradientMag.getRGB(x, y)).getRed();
 		});
 		logger.log("done intializing");
 		// TODO: add iterator for number of seams k
 		// Run matrix
+		logger.log("dim y:" + m.length + " dim x:" + m[0].length);
 		for(int y=1;y<m.length;y++) {
 			for(int x=0;x<m[0].length;x++) {
-				m[y][x] = calcEnergy(y,x);
+				m[y][x]+= calcEnergy(y,x);
 			}
 		}
-		// get 
 		logger.log("completed");
 		
 	}
 	
 	public long calcEnergy(int y, int x) {
-		long energy = m[y][x];
 		long MCL, MCV, MCR;
 		if(x == 0) {
-			// TODO: Finish the edge case for MCR/MCV
 			MCL = Long.MAX_VALUE;
-			MCR = m[y-1][x+1] + Math.abs(i[y][x+1]-i[y][x-1]) + Math.abs(i[y-1][x]-i[y][x+1]);
-		} else 		if(x < m[0].length) {
-			// TODO: Finish the edge case for MCR/MCV
-			MCL =  m[y-1][x-1] + Math.abs(i[y][x+1]-i[y][x-1]) + Math.abs(i[y-1][x]-i[y][x-1]);
+			MCV = 0;
+			MCR = m[y-1][x+1] + Math.abs(e[y-1][x]-e[y][x+1]);
+		} else if (x < m[0].length-1) {
+			MCL =  m[y-1][x-1] + Math.abs(e[y][x+1]-e[y][x-1]) + Math.abs(e[y-1][x]-e[y][x-1]);
+			MCV = m[y-1][x] + Math.abs(e[y][x+1]-e[y][x-1]);
+			MCR = m[y-1][x+1] + Math.abs(e[y][x+1]-e[y][x-1]) + Math.abs(e[y-1][x]-e[y][x+1]);
 		} else {
-			MCR = m[y-1][x+1] + Math.abs(i[y][x+1]-i[y][x-1]) + Math.abs(i[y-1][x]-i[y][x+1]);
-			MCL =  m[y-1][x-1] + Math.abs(i[y][x+1]-i[y][x-1]) + Math.abs(i[y-1][x]-i[y][x-1]);
-			MCV = m[y-1][x] + Math.abs(i[y][x+1]-i[y][x-1]);
+			MCL = m[y-1][x-1] + Math.abs(e[y-1][x]-e[y][x-1]);
+			MCV = 0;
+			MCR = Long.MAX_VALUE;
 		}
-		energy += Math.min(Math.min(MCL, MCR), MCV);
-		return energy;
+		return Math.min(Math.min(MCL, MCR), MCV);
 	}
 	//MARK: Methods
 	public BufferedImage resize() {
