@@ -55,9 +55,11 @@ public class SeamsCarver extends ImageProcessor {
 			e[x][y] = new Color(gradientMag.getRGB(x, y)).getRed();
 		});
 		// Run matrix
-		for(int y=1;y<m.length;y++) {
-			for(int x=0;x<m[0].length;x++) {
-				m[y][x]+= calcEnergy(y,x);
+		for(int x=1;x<m.length;x++) {
+			System.out.println();
+			for(int y=0;y<m[0].length;y++) {
+				m[x][y]+= calcEnergy(x,y);
+				System.out.print(m[x][y] + " ");
 			}
 		}
 		
@@ -71,13 +73,13 @@ public class SeamsCarver extends ImageProcessor {
 			int minimalIndex = 0;
 			// find the minimal index in the top row
 			for(int i=1;i<topRow.length;i++) {
-				if(topRow[minimalIndex] < topRow[i]) {
+				if(topRow[minimalIndex] >= topRow[i]) {
 					minimalIndex = i;
 				}
-			}	
+			}
+			logger.log(topRow[minimalIndex]);
 			// backtrack minimal energy seam
 			minimalSeam[m.length-1] = minimalIndex + indexTracking[m.length-1][minimalIndex];
-			logger.log("backtrack");
 			for(int j=m.length-1;j>0;j--) {
 				// choose the minimal value for each previous 3 index
 				long leftIndex = minimalIndex > 0 ? m[j-1][minimalIndex-1] : Long.MAX_VALUE;
@@ -93,38 +95,61 @@ public class SeamsCarver extends ImageProcessor {
 			// put the seam in the seam collection
 			seams[k] = minimalSeam;
 			// remove seam, update index and calculate new energy
-			logger.log("remove seam");
 			for(int j=0;j<m.length;j++) {
 				long[] newRow = new long[m[0].length-1];
+				long[] newRowMagnitude = new long[e[0].length-1];
 				for(int i=0;i<m[0].length-1;i++) {
 					if(i<minimalSeam[j]) {
 						// if you haven't hit the removed index, copy
 						newRow[i] = m[j][i];
+						newRowMagnitude[i] = e[j][i];
 					} else {
 						// if you are above the removed index, skip one and indicate it on the indexTracking
 						newRow[i] = m[j][i+1];
+						newRowMagnitude[i] = e[j][i+1];
 						indexTracking[j][i]++;
 					}
 				}
+//				if( j> 0) {
+//				calcEnergy(j,minimalSeam[j]);
+//					if(minimalSeam[j] > 0) {
+//					calcEnergy(j,minimalSeam[j]-1);
+//					}
+//				}
 				// point the matrix to the new row
 				m[j] = newRow;
+				e[j] = newRowMagnitude;
 			}	
 		}
 	}
 	
 	public long calcEnergy(int y, int x) {
 		long MCL, MCV, MCR;
+//		if(x == 0) {
+//			MCL = Long.MAX_VALUE;
+//			MCV = m[y-1][x] + Math.abs(e[y][x+2]-e[y][x+1]);
+//			MCR = m[y-1][x+1] + Math.abs(e[y-1][x]-e[y][x+1]);
+//		} else if (x < m[0].length-1) {
+//			MCL =  m[y-1][x-1] + Math.abs(e[y][x+1]-e[y][x-1]) + Math.abs(e[y-1][x]-e[y][x-1]);
+//			MCV = m[y-1][x] + Math.abs(e[y][x+1]-e[y][x-1]);
+//			MCR = m[y-1][x+1] + Math.abs(e[y][x+1]-e[y][x-1]) + Math.abs(e[y-1][x]-e[y][x+1]);
+//		} else {
+//			MCL = m[y-1][x-1] + Math.abs(e[y-1][x]-e[y][x-1]);
+//			MCV = m[y-1][x] + Math.abs(e[y][x-1]-e[y][x-2]);
+//			MCR = Long.MAX_VALUE;
+//		}
+//		return e[y][x]+Math.min(Math.min(MCL, MCR), MCV);
 		if(x == 0) {
 			MCL = Long.MAX_VALUE;
-			MCV = 0;
-			MCR = m[y-1][x+1] + Math.abs(e[y-1][x]-e[y][x+1]);
+			MCV = m[y-1][x];
+			MCR = m[y-1][x+1];
 		} else if (x < m[0].length-1) {
-			MCL =  m[y-1][x-1] + Math.abs(e[y][x+1]-e[y][x-1]) + Math.abs(e[y-1][x]-e[y][x-1]);
-			MCV = m[y-1][x] + Math.abs(e[y][x+1]-e[y][x-1]);
-			MCR = m[y-1][x+1] + Math.abs(e[y][x+1]-e[y][x-1]) + Math.abs(e[y-1][x]-e[y][x+1]);
+			MCL =  m[y-1][x-1];
+			MCV = m[y-1][x];
+			MCR = m[y-1][x+1];
 		} else {
-			MCL = m[y-1][x-1] + Math.abs(e[y-1][x]-e[y][x-1]);
-			MCV = 0;
+			MCL = m[y-1][x-1];
+			MCV = m[y-1][x];
 			MCR = Long.MAX_VALUE;
 		}
 		return Math.min(Math.min(MCL, MCR), MCV);
@@ -147,7 +172,17 @@ public class SeamsCarver extends ImageProcessor {
 	}
 	
 	public BufferedImage showSeams(int seamColorRGB) {
-		//TODO: Implement this method (bonus), remove the exception.
-		throw new UnimplementedMethodException("showSeams");
+		BufferedImage ans =  newEmptyOutputSizedImage();
+		logger.log(ans.getWidth());
+		logger.log(ans.getHeight());
+		for(int j=0;j<ans.getHeight()-1;j++) {
+			for(int[] seam: seams) {
+//				logger.log(seam[j]);
+//				logger.log(j);
+				ans.setRGB(seam[j], j, seamColorRGB);
+			}
+		}
+		return ans;
+//		throw new UnimplementedMethodException("showSeams");
 	}
 }
