@@ -48,108 +48,100 @@ public class SeamsCarver extends ImageProcessor {
 			resizeOp = this::duplicateWorkingImage;
 				
 		// Initialize both previous and current matrices as gradient magnitude.
-		m = new long[gradientMag.getWidth()][gradientMag.getHeight()];
-		e = new long[gradientMag.getWidth()][gradientMag.getHeight()];
+		int rows = gradientMag.getHeight();
+		int columns = gradientMag.getWidth();
+		m = new long[columns][rows];
+		e = new long[columns][rows];
+		logger.log("initializing both matrices from workingImage");
 		forEach((y,x) -> {
-			m[x][y] = new Color(gradientMag.getRGB(x, y)).getRed();
-			e[x][y] = new Color(gradientMag.getRGB(x, y)).getRed();
+			m[x][y] = new Color(gradientMag.getRGB(x,y)).getRed();
+			e[x][y] = new Color(gradientMag.getRGB(x,y)).getRed();
 		});
+		
+		logger.log("computing matrix");
 		// Run matrix
-		for(int x=1;x<m.length;x++) {
-			System.out.println();
-			for(int y=0;y<m[0].length;y++) {
+		for(int y=1;y<rows;y++) {
+			for(int x=0;x<columns;x++) {
 				m[x][y]+= calcEnergy(x,y);
-				System.out.print(m[x][y] + " ");
 			}
 		}
-		
+		logger.log("starting to extract seams");
 		// extract k seams
-		seams = new int[numOfSeams][m.length];
-		int[][] indexTracking = new int[m.length][m[0].length];
+		seams = new int[numOfSeams][rows];
+		int[][] indexOffset = new int[columns][rows];
 		
 		for(int k=0;k<numOfSeams;k++) {
-			long[] topRow = m[m.length-1];
-			int[] minimalSeam = new int[m.length];
+			logger.log("finding seam " + k + "#");
+			// minimalSeam will hold the array that has the indexes in the workingImage
+			int[] minimalSeam = new int[rows];
+			// minimalIndex will be the pointer for the current minimal index
 			int minimalIndex = 0;
 			// find the minimal index in the top row
-			for(int i=1;i<topRow.length;i++) {
-				if(topRow[minimalIndex] >= topRow[i]) {
-					minimalIndex = i;
+			for(int x=1;x<columns;x++) {
+				if(m[minimalIndex][rows-1] >= m[x][rows-1]) {
+					minimalIndex = x;
 				}
 			}
-			logger.log(topRow[minimalIndex]);
-			// backtrack minimal energy seam
-			minimalSeam[m.length-1] = minimalIndex + indexTracking[m.length-1][minimalIndex];
-			for(int j=m.length-1;j>0;j--) {
+			logger.log("found minimal index: " + minimalIndex);
+			// setting the top row minimal index as the last index in minimalSeam
+			minimalSeam[rows-1] = minimalIndex;
+			// backtrack minimal seam in m
+			for(int y=rows-1;y>0;y--) {
 				// choose the minimal value for each previous 3 index
-				long leftIndex = minimalIndex > 0 ? m[j-1][minimalIndex-1] : Long.MAX_VALUE;
-				long midIndex = m[j-1][minimalIndex];
-				long rightIndex = minimalIndex >= topRow.length ? m[j-1][minimalIndex+1] : Long.MAX_VALUE;
-				if(leftIndex < midIndex && leftIndex < rightIndex) {
+				long leftValue = minimalIndex > 0 ? m[minimalIndex-1][y-1] : Long.MAX_VALUE;
+				long midValue = m[minimalIndex][y-1];
+				long rightValue = minimalIndex >= columns ? m[minimalIndex+1][y-1] : Long.MAX_VALUE;
+				if(leftValue < midValue && leftValue < rightValue) {
 					minimalIndex--;
-				} else if (rightIndex < midIndex && rightIndex < leftIndex) {
+				} else if (rightValue < midValue && rightValue < leftValue) {
 					minimalIndex++;
 				}
-				minimalSeam[j-1] = minimalIndex + indexTracking[j-1][minimalIndex];
+				minimalSeam[y-1] = minimalIndex;
 			}
-			// put the seam in the seam collection
+			// add offsets for minimalSeam
+			for(int y=0;y<rows;y++) {
+				minimalSeam[y]+=indexOffset[minimalSeam[y]][y];
+			}
+			logger.log(minimalSeam[rows-1]);
 			seams[k] = minimalSeam;
 			// remove seam, update index and calculate new energy
-			for(int j=0;j<m.length;j++) {
-				long[] newRow = new long[m[0].length-1];
-				long[] newRowMagnitude = new long[e[0].length-1];
-				for(int i=0;i<m[0].length-1;i++) {
-					if(i<minimalSeam[j]) {
-						// if you haven't hit the removed index, copy
-						newRow[i] = m[j][i];
-						newRowMagnitude[i] = e[j][i];
+			logger.log("removing seam and updating indexes");
+			long[][] mUpdate = new long[columns-1][rows];
+			long[][] eUpdate = new long[columns-1][rows];
+			for(int y=0;y<rows;y++) {
+				int seamIndexNoOffset = minimalSeam[y] - indexOffset[minimalSeam[y]][y];
+				for(int x=0;x<columns-1;x++) {
+					// if the minimal seam index in this row is bigger than the current index, copy the matrix as is
+					if(x<seamIndexNoOffset) {
+						mUpdate[x][y] = m[x][y];
+						eUpdate[x][y] = e[x][y];
 					} else {
-						// if you are above the removed index, skip one and indicate it on the indexTracking
-						newRow[i] = m[j][i+1];
-						newRowMagnitude[i] = e[j][i+1];
-						indexTracking[j][i]++;
+					// if the minimal seam in this row is bigger or equal to the current index, shift its value by 1 and add it to the indexOffset
+						mUpdate[x][y] = m[x+1][y];
+						eUpdate[x][y] = e[x+1][y];
+						indexOffset[x][y]++;
 					}
 				}
-//				if( j> 0) {
-//				calcEnergy(j,minimalSeam[j]);
-//					if(minimalSeam[j] > 0) {
-//					calcEnergy(j,minimalSeam[j]-1);
-//					}
-//				}
-				// point the matrix to the new row
-				m[j] = newRow;
-				e[j] = newRowMagnitude;
-			}	
+			}
+			m = mUpdate;
+			e = eUpdate;
+			columns--;
 		}
 	}
 	
-	public long calcEnergy(int y, int x) {
+	public long calcEnergy(int x, int y) {
 		long MCL, MCV, MCR;
-//		if(x == 0) {
-//			MCL = Long.MAX_VALUE;
-//			MCV = m[y-1][x] + Math.abs(e[y][x+2]-e[y][x+1]);
-//			MCR = m[y-1][x+1] + Math.abs(e[y-1][x]-e[y][x+1]);
-//		} else if (x < m[0].length-1) {
-//			MCL =  m[y-1][x-1] + Math.abs(e[y][x+1]-e[y][x-1]) + Math.abs(e[y-1][x]-e[y][x-1]);
-//			MCV = m[y-1][x] + Math.abs(e[y][x+1]-e[y][x-1]);
-//			MCR = m[y-1][x+1] + Math.abs(e[y][x+1]-e[y][x-1]) + Math.abs(e[y-1][x]-e[y][x+1]);
-//		} else {
-//			MCL = m[y-1][x-1] + Math.abs(e[y-1][x]-e[y][x-1]);
-//			MCV = m[y-1][x] + Math.abs(e[y][x-1]-e[y][x-2]);
-//			MCR = Long.MAX_VALUE;
-//		}
-//		return e[y][x]+Math.min(Math.min(MCL, MCR), MCV);
 		if(x == 0) {
 			MCL = Long.MAX_VALUE;
-			MCV = m[y-1][x];
-			MCR = m[y-1][x+1];
+			MCV = m[x][y-1];
+			MCR = m[x+1][y-1] + Math.abs(e[x][y-1]-e[x+1][y]);
 		} else if (x < m[0].length-1) {
-			MCL =  m[y-1][x-1];
-			MCV = m[y-1][x];
-			MCR = m[y-1][x+1];
+			MCL =  m[x-1][y-1] + Math.abs(e[x+1][y]-e[x-1][y]) + Math.abs(e[x][y-1]-e[x-1][y]);
+			MCV = m[x][y-1] + Math.abs(e[x+1][y]-e[x-1][y]);
+			MCR = m[x+1][y-1] + Math.abs(e[x+1][y]-e[x-1][y]) + Math.abs(e[x][y-1]-e[x+1][y]);
 		} else {
-			MCL = m[y-1][x-1];
-			MCV = m[y-1][x];
+			MCL = m[x-1][y-1] + Math.abs(e[x][y-1]-e[x-1][y]);
+			MCV = m[x][y-1];
 			MCR = Long.MAX_VALUE;
 		}
 		return Math.min(Math.min(MCL, MCR), MCV);
@@ -172,13 +164,12 @@ public class SeamsCarver extends ImageProcessor {
 	}
 	
 	public BufferedImage showSeams(int seamColorRGB) {
-		BufferedImage ans =  newEmptyOutputSizedImage();
-		logger.log(ans.getWidth());
-		logger.log(ans.getHeight());
-		for(int j=0;j<ans.getHeight()-1;j++) {
+		BufferedImage ans =  newEmptyInputSizedImage();
+		forEach((y,x) -> {
+			ans.setRGB(x,y, this.workingImage.getRGB(x, y));
+		});
+		for(int j=0;j<ans.getHeight();j++) {
 			for(int[] seam: seams) {
-//				logger.log(seam[j]);
-//				logger.log(j);
 				ans.setRGB(seam[j], j, seamColorRGB);
 			}
 		}
