@@ -109,6 +109,7 @@ public class SeamsCarver extends ImageProcessor {
 			long[][] mUpdate = new long[columns-1][rows];
 			long[][] eUpdate = new long[columns-1][rows];
 			for(int y=0;y<rows;y++) {
+				// get the seam index without the offset (that may change during runtime)
 				int seamIndexNoOffset = minimalSeam[y] - indexOffset[minimalSeam[y]][y];
 				for(int x=0;x<columns-1;x++) {
 					// if the minimal seam index in this row is bigger than the current index, copy the matrix as is
@@ -122,6 +123,13 @@ public class SeamsCarver extends ImageProcessor {
 						indexOffset[x][y]++;
 					}
 				}
+				// need to recalculate the energy - problematic because you both need the current offset AND the updated m/e matrices
+//				if(y>0) {
+//				mUpdate[seamIndexNoOffset][y] = calcEnergy(seamIndexNoOffset, y);
+//				if(seamIndexNoOffset>=0) {
+//					mUpdate[seamIndexNoOffset-1][y] = calcEnergy(seamIndexNoOffset-1, y);
+//				}
+//			}
 			}
 			m = mUpdate;
 			e = eUpdate;
@@ -135,7 +143,7 @@ public class SeamsCarver extends ImageProcessor {
 			MCL = Long.MAX_VALUE;
 			MCV = m[x][y-1];
 			MCR = m[x+1][y-1] + Math.abs(e[x][y-1]-e[x+1][y]);
-		} else if (x < m[0].length-1) {
+		} else if (x < m.length-1) {
 			MCL =  m[x-1][y-1] + Math.abs(e[x+1][y]-e[x-1][y]) + Math.abs(e[x][y-1]-e[x-1][y]);
 			MCV = m[x][y-1] + Math.abs(e[x+1][y]-e[x-1][y]);
 			MCR = m[x+1][y-1] + Math.abs(e[x+1][y]-e[x-1][y]) + Math.abs(e[x][y-1]-e[x+1][y]);
@@ -154,13 +162,46 @@ public class SeamsCarver extends ImageProcessor {
 	
 	//MARK: Unimplemented methods
 	private BufferedImage reduceImageWidth() {
-		//TODO: Implement this method, remove the exception.
-		throw new UnimplementedMethodException("reduceImageWidth");
+		BufferedImage ans =  newEmptyOutputSizedImage();
+		int pointer = 0;
+		int rows = ans.getHeight();
+		int columns = ans.getWidth();
+		for(int y=0;y<rows;y++) {
+			for(int x=0;x<columns;x++) {
+				for(int[] seam : seams) {
+					if(x == seam[y]) {
+						pointer++;
+					}
+			}
+			ans.setRGB(x, y, this.workingImage.getRGB(x+pointer,y));
+		}
+			pointer = 0;
+
+	}
+		return ans;
 	}
 	
 	private BufferedImage increaseImageWidth() {
-		//TODO: Implement this method, remove the exception.
-		throw new UnimplementedMethodException("increaseImageWidth");
+		BufferedImage ans =  newEmptyOutputSizedImage();
+		int pointer = 0;
+		int rows = ans.getHeight();
+		int columns = ans.getWidth();
+		int orgColumns = this.workingImage.getWidth();
+		for(int y=0;y<rows;y++) {
+			for(int x=0;x<orgColumns;x++) {
+				for(int[] seam : seams) {
+					if(x == seam[y]) {
+						ans.setRGB(x+pointer, y, this.workingImage.getRGB(x,y));
+						logger.log("moving pointer: " + pointer + " ,x:" + x);
+						pointer++;
+					}
+			}
+			ans.setRGB(x+pointer, y, this.workingImage.getRGB(x,y));
+		}
+			pointer = 0;
+
+	}
+		return ans;
 	}
 	
 	public BufferedImage showSeams(int seamColorRGB) {
@@ -174,6 +215,5 @@ public class SeamsCarver extends ImageProcessor {
 			}
 		}
 		return ans;
-//		throw new UnimplementedMethodException("showSeams");
 	}
 }
