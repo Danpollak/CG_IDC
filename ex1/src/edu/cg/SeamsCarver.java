@@ -169,10 +169,12 @@ public class SeamsCarver extends ImageProcessor {
 		for(int y=0;y<rows;y++) {
 			for(int x=0;x<columns;x++) {
 				for(int[] seam : seams) {
+					// if there's a seam passing in this column, move the pointer to skip that pixel
 					if(x == seam[y]) {
 						pointer++;
 					}
 			}
+				//copy the value from the original workingImage with the current pointer offset
 			ans.setRGB(x, y, this.workingImage.getRGB(x+pointer,y));
 		}
 			pointer = 0;
@@ -185,17 +187,18 @@ public class SeamsCarver extends ImageProcessor {
 		BufferedImage ans =  newEmptyOutputSizedImage();
 		int pointer = 0;
 		int rows = ans.getHeight();
-		int columns = ans.getWidth();
 		int orgColumns = this.workingImage.getWidth();
 		for(int y=0;y<rows;y++) {
 			for(int x=0;x<orgColumns;x++) {
 				for(int[] seam : seams) {
+					// if there's a passing seam in this column, copy the pixel and move the pointer
 					if(x == seam[y]) {
 						ans.setRGB(x+pointer, y, this.workingImage.getRGB(x,y));
 						logger.log("moving pointer: " + pointer + " ,x:" + x);
 						pointer++;
 					}
 			}
+			// copy the value from original workingImage with the current pointer offset
 			ans.setRGB(x+pointer, y, this.workingImage.getRGB(x,y));
 		}
 			pointer = 0;
