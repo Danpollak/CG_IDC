@@ -2,7 +2,7 @@ package edu.cg;
 
 import java.io.File;
 
-import edu.cg.menu.MenuWindow;
+import edu.cg.menu.MenuWindow;;
 
 public class Main {
 	
