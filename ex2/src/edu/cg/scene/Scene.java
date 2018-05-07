@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 
 import edu.cg.Logger;
 import edu.cg.UnimplementedMethodException;
+import edu.cg.algebra.Hit;
 import edu.cg.algebra.Point;
 import edu.cg.algebra.Ray;
 import edu.cg.algebra.Vec;
@@ -196,7 +197,49 @@ public class Scene {
 	}
 	
 	private Vec calcColor(Ray ray, int recusionLevel) {
-		//TODO: implement this method
+		Hit hit = FindIntersection(ray);
+		if(hit == null) {
+			return this.backgroundColor;
+		}
+		Surface surface = hit.getSurface();
+		Vec ambColor = surface.Ka().mult(this.ambient);
+		Vec sumDiff = new Vec();
+		Vec sumSpec = new Vec();
+		for(Light light : this.lightSources) {
+			sumDiff.add()
+//		color += calcDiffuseColor(scene,hit,light) +
+//		calcSpecularColor(scene,hit,light);
+		}
+		if (level == MAX_LEVEL)
+		return rgb(0,0,0);
+		Vector normal = getNormalAtPoint(hit);
+		Ray out_ray = ConstructOutRay (in_ray, normal);
+		color += K_s * CalcColor(scene, out_ray, level+1);
+		return color;
 		throw new UnimplementedMethodException("calcColor(Ray, int)");
+	}
+	
+	private Hit FindIntersection(Ray rayCharles) {
+		Hit minHit = null;
+		for(Surface surface : surfaces) {
+			Hit currentHit = surface.intersect(rayCharles);
+			if(currentHit != null) {
+				if(minHit == null) {
+					minHit = currentHit;
+				} else {
+					if(minHit.t() > currentHit.t()) {
+						minHit = currentHit;
+					}
+				}
+			}
+		}
+		return minHit;
+	}
+	
+	private Vec calcDiffColor(Surface surface,Hit hit, Light light, Ray ray) {
+		Vec vec = new Vec();
+		// TODO: Get Light
+		vec = surface.Kd(ray.add(hit.t())).mult(hit.getNormalToSurface().dot(light.kd));
+		return vec;
 	}
 }

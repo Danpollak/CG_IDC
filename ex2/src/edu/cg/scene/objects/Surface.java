@@ -29,8 +29,9 @@ public class Surface implements Intersectable {
 	
 	@Override
 	public Hit intersect(Ray ray) {
-		//TODO: implement this method.
-		throw new UnimplementedMethodException("intersect(Ray)");
+		Hit hit = this.shape.intersect(ray);
+		hit.setSurface(this);
+		return hit;
 	}
 	
 	public Vec Ka() {
