@@ -1,0 +1,185 @@
+{
+  "name": "scene7",
+  "maxRecursionLevel": 6,
+  "antiAliasingFactor": 3,
+  "renderRefarctions": true,
+  "renderReflections": true,
+  "camera": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 5.0
+  },
+  "ambient": {
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
+  },
+  "backgroundColor": {
+    "x": 0.0,
+    "y": 0.5,
+    "z": 1.0
+  },
+  "lightSources": [
+    {
+      "CLASSNAME": "edu.cg.scene.lightSources.DirectionalLight",
+      "DATA": {
+        "direction": {
+          "x": -1.0,
+          "y": -1.0,
+          "z": -1.0
+        },
+        "intensity": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      }
+    }
+  ],
+  "surfaces": [
+    {
+      "shape": {
+        "CLASSNAME": "edu.cg.scene.objects.Plain",
+        "DATA": {
+          "a": 0.0,
+          "b": 1.0,
+          "c": 0.0,
+          "d": 1.0
+        }
+      },
+      "material": {
+        "Ka": {
+          "x": 0.05,
+          "y": 0.05,
+          "z": 0.05
+        },
+        "Kd1": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "Kd2": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "isCheckerBoard": true,
+        "Ks": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "reflectionIntensity": 0.1,
+        "shininess": 20,
+        "isTransparent": false,
+        "Kt": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "refractionIntensity": 0.0,
+        "refractionIndex": 1.5
+      }
+    },
+    {
+      "shape": {
+        "CLASSNAME": "edu.cg.scene.objects.Sphere",
+        "DATA": {
+          "center": {
+            "x": -0.4,
+            "y": -0.5,
+            "z": -8.0
+          },
+          "radius": 0.5
+        }
+      },
+      "material": {
+        "Ka": {
+          "x": 0.05,
+          "y": 0.05,
+          "z": 0.05
+        },
+        "Kd1": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "Kd2": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "isCheckerBoard": false,
+        "Ks": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "reflectionIntensity": 0.95,
+        "shininess": 100,
+        "isTransparent": false,
+        "Kt": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "refractionIntensity": 0.0,
+        "refractionIndex": 1.5
+      }
+    },
+    {
+      "shape": {
+        "CLASSNAME": "edu.cg.scene.objects.Dome",
+        "DATA": {
+          "sphere": {
+            "center": {
+              "x": 0.0,
+              "y": -0.5,
+              "z": -6.0
+            },
+            "radius": 0.5
+          },
+          "plain": {
+            "a": -1.0,
+            "b": 0.0,
+            "c": -1.0,
+            "d": -6.0
+          }
+        }
+      },
+      "material": {
+        "Ka": {
+          "x": 0.05,
+          "y": 0.05,
+          "z": 0.05
+        },
+        "Kd1": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "Kd2": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "isCheckerBoard": false,
+        "Ks": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "reflectionIntensity": 0.005,
+        "shininess": 100,
+        "isTransparent": true,
+        "Kt": {
+          "x": 1.0,
+          "y": 0.3,
+          "z": 0.3
+        },
+        "refractionIntensity": 0.945,
+        "refractionIndex": 1.5
+      }
+    }
+  ]
+}
