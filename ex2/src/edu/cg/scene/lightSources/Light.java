@@ -1,5 +1,6 @@
 package edu.cg.scene.lightSources;
 
+import edu.cg.algebra.Point;
 import edu.cg.algebra.Vec;
 
 public abstract class Light {
@@ -16,5 +17,10 @@ public abstract class Light {
 		return this;
 	}
 	
-	//TODO: add some methods
+	public abstract Vec getDirection(Point p);
+	
+	public abstract Vec getIntensity(Point p);
+	
+	public abstract Vec getLightOnHitPoint(Point hitPoint);
+	
 }

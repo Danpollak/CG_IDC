@@ -1,5 +1,6 @@
 package edu.cg.scene.lightSources;
 
+import edu.cg.algebra.Point;
 import edu.cg.algebra.Vec;
 
 public class DirectionalLight extends Light {
@@ -22,5 +23,16 @@ public class DirectionalLight extends Light {
 		return (DirectionalLight)super.initIntensity(intensity);
 	}
 	
-	//TODO: add some methods
+	@Override
+	public Vec getDirection(Point p) {
+		return this.direction;
+	}
+	
+	public Vec getIntensity(Point p) {
+		return this.intensity;
+	}
+	
+	public Vec getLightOnHitPoint(Point p) {
+		return this.getDirection(null).mult(this.getIntensity(null));
+	}
 }
