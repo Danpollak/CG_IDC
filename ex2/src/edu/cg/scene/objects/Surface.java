@@ -33,7 +33,9 @@ public class Surface implements Intersectable {
 		hit.setSurface(this);
 		return hit;
 	}
-	
+	public String shapeType() {
+		return shape.toString();
+	}
 	public Vec Ka() {
 		return material.Ka;
 	}

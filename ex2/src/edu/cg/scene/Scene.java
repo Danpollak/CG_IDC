@@ -197,40 +197,59 @@ public class Scene {
 		}
 		Surface surface = hit.getSurface();
 		Point hitPoint = ray.add(hit.t());
+		// add ambient
 		Vec color = surface.Ka().mult(this.ambient);
-//		Vec color = new Vec(0,0,0);
+		Vec N = hit.getNormalToSurface();
 		for (Light light : this.lightSources) {
-			Vec N = hit.getNormalToSurface();
+			// check for occlusions
 			Vec L = light.getDirection(hitPoint);
 			Vec R = N.mult(2 * (N.dot(L))).add(L.neg());
-			Vec V = ray.direction();
-			Vec kd = surface.Kd(hitPoint);
-			Vec ks = surface.Ks();
-			Vec I = light.getIntensity(hitPoint);
-			double n = surface.shininess();
-			Vec diff = kd.mult(N.dot(L));
-//			this.logger.log(" N.L:" + N.dot(L) + " N:" + N.toString() + " L: " + L.toString());
-			Vec spec = ks.mult(Math.pow(V.dot(R), n)).mult(I);
-			color = color.add(diff);
-//			this.logger.log(diff.toString());
-			color = color.add(spec);
+			Ray rayToLight = new Ray(hitPoint, L.neg());
+			rayToLight.setSurface(surface);
+			Hit occlusion = this.FindIntersection(rayToLight);
+			if(occlusion == null) {
+				Vec V = ray.direction();
+				Vec kd = surface.Kd(hitPoint);
+				Vec ks = surface.Ks();
+				Vec I = light.getIntensity(hitPoint);
+				double n = surface.shininess();
+				Vec diff = kd.mult(N.dot(L));
+				Vec spec = ks.mult(Math.pow(V.dot(R), n)).mult(I);
+				color = color.add(diff);
+				color = color.add(spec);
+			} else {
+				this.logger.log(surface.shapeType() + " was occuluded by " + occlusion.getSurface().shapeType() + " at t " + occlusion.t());
+			}
 		}
+//		if (recusionLevel == this.maxRecursionLevel) {
+//			return new Vec(0,0,0);
+//		}
+//		Ray out_ray = new Ray(hitPoint, N);
+//		out_ray.setSurface(surface);
+//		color= color.add(surface.Ks().mult(calcColor(out_ray, recusionLevel+1)));
 		return color;
 	}
 
-	private Hit FindIntersection(Ray rayCharles) {
+	private Hit FindIntersection(Ray ray) {
 		Hit minHit = null;
+		Surface src = ray.surface();
 		for (Surface surface : surfaces) {
-			Hit currentHit = surface.intersect(rayCharles);
-			if (currentHit != null) {
-				if (minHit == null) {
-					minHit = currentHit;
-				} else {
-					if (minHit.t() > currentHit.t() && currentHit.t() != Ops.infinity) {
+			// check if you are not checking intersection with yourself
+			if(surface != src) {
+				Hit currentHit = surface.intersect(ray);
+				if (currentHit != null) {
+					if (minHit == null) {
 						minHit = currentHit;
+					} else {
+						if (minHit.t() > currentHit.t()) {
+							minHit = currentHit;
+						}
 					}
 				}
 			}
+		}
+		if(minHit.t() == Ops.infinity) {
+			return null;
 		}
 		return minHit;
 	}

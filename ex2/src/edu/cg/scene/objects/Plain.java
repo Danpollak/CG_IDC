@@ -3,6 +3,7 @@ package edu.cg.scene.objects;
 import edu.cg.UnimplementedMethodException;
 import edu.cg.algebra.Hit;
 import edu.cg.algebra.Mat3x3;
+import edu.cg.algebra.Ops;
 import edu.cg.algebra.Point;
 import edu.cg.algebra.Ray;
 import edu.cg.algebra.Vec;
@@ -115,6 +116,9 @@ public class Plain extends Shape {
 		double z = -this.d / c;
 		Point Q0 = new Point(0,0,z);
 		double t = N.dot((Q0.sub(P0).mult(1/(N.dot(V)))));
+		if(t < 0) {
+			return new Hit(Ops.infinity, new Vec());
+		}
 		Hit hit = new Hit(t, this.normal());
 		return hit;
 	}
