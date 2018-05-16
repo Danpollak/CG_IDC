@@ -25,6 +25,6 @@ public class Dome extends Shape {
 	@Override
 	public Hit intersect(Ray ray) {
 		//TODO: implement this method.
-		throw new UnimplementedMethodException("intersect(Ray)");
+		throw new UnimplementedMethodException("intersect(Ray) Dome");
 	}
 }

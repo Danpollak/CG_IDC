@@ -54,7 +54,7 @@ public class Sphere extends Shape {
 		}
 		minT = Math.min(t1, t2);
 		if(minT == Ops.infinity) {
-			return null;
+			return new Hit(minT, new Vec());
 		}
 		Point intersection = ray.add(minT);
 		Vec normal = intersection.sub(this.center).normalize();

@@ -43,7 +43,7 @@ public class Spotlight extends PointLight {
 	
 	@Override
 	public Vec getDirection(Point src) {
-		Vec direction = this.position.sub(src);
+		Vec direction = this.position.sub(src).normalize();
 		return direction;
 	}
 	

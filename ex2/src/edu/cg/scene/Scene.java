@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import edu.cg.Logger;
 import edu.cg.UnimplementedMethodException;
 import edu.cg.algebra.Hit;
+import edu.cg.algebra.Ops;
 import edu.cg.algebra.Point;
 import edu.cg.algebra.Ray;
 import edu.cg.algebra.Vec;
@@ -196,29 +197,25 @@ public class Scene {
 		}
 		Surface surface = hit.getSurface();
 		Point hitPoint = ray.add(hit.t());
-		Vec color = new Vec();
-		Vec ambColor = surface.Ka().mult(this.ambient);
-		color.add(ambColor);
+		Vec color = surface.Ka().mult(this.ambient);
+//		Vec color = new Vec(0,0,0);
 		for (Light light : this.lightSources) {
-			Vec diff = new Vec();
-			Vec spec = new Vec();
 			Vec N = hit.getNormalToSurface();
-			Vec L = light.getLightOnHitPoint(hitPoint);
+			Vec L = light.getDirection(hitPoint);
 			Vec R = N.mult(2 * (N.dot(L))).add(L.neg());
 			Vec V = ray.direction();
 			Vec kd = surface.Kd(hitPoint);
 			Vec ks = surface.Ks();
 			Vec I = light.getIntensity(hitPoint);
 			double n = surface.shininess();
-			diff = kd.mult(N.dot(L));
-			spec = ks.mult(Math.pow(V.dot(R), n));
-			color.add(diff.add(spec).mult(I));
+			Vec diff = kd.mult(N.dot(L));
+//			this.logger.log(" N.L:" + N.dot(L) + " N:" + N.toString() + " L: " + L.toString());
+			Vec spec = ks.mult(Math.pow(V.dot(R), n)).mult(I);
+			color = color.add(diff);
+//			this.logger.log(diff.toString());
+			color = color.add(spec);
 		}
-		// if (level == MAX_LEVEL)
-		// return rgb(0,0,0);
-		// color += K_s * CalcColor(scene, out_ray, level+1);
 		return color;
-		// throw new UnimplementedMethodException("calcColor(Ray, int)");
 	}
 
 	private Hit FindIntersection(Ray rayCharles) {
@@ -229,7 +226,7 @@ public class Scene {
 				if (minHit == null) {
 					minHit = currentHit;
 				} else {
-					if (minHit.t() > currentHit.t()) {
+					if (minHit.t() > currentHit.t() && currentHit.t() != Ops.infinity) {
 						minHit = currentHit;
 					}
 				}
