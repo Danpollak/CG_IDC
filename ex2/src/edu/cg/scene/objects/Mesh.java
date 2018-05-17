@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import edu.cg.UnimplementedMethodException;
 import edu.cg.algebra.Hit;
+import edu.cg.algebra.Ops;
 import edu.cg.algebra.Point;
 import edu.cg.algebra.Ray;
+import edu.cg.algebra.Vec;
 
 public class Mesh extends Shape implements Iterable<Triangle> {
 	public static class Triplet {
@@ -84,8 +84,17 @@ public class Mesh extends Shape implements Iterable<Triangle> {
 
 	@Override
 	public Hit intersect(Ray ray) {
-		//TODO: implement this method.
-		throw new UnimplementedMethodException("intersect(Ray)");
+
+		Hit minHit = new Hit(Ops.infinity, new Vec());
+		for(Triplet triplet : indices){
+			Triangle triangle = makeTriangle(triplet);
+			Hit hit = triangle.intersect(ray);
+			double hitT= hit.t();
+			if ((hitT < minHit.t())&&(hitT > Ops.epsilon)&&(hitT < Ops.infinity)){
+				minHit = hit;
+			}
+		}
+		return minHit;
 	}
 
 }
