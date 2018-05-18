@@ -2,6 +2,7 @@ package edu.cg.scene.objects;
 
 import edu.cg.UnimplementedMethodException;
 import edu.cg.algebra.Hit;
+import edu.cg.algebra.Ops;
 import edu.cg.algebra.Point;
 import edu.cg.algebra.Ray;
 import edu.cg.algebra.Vec;
@@ -40,7 +41,7 @@ public class Dome extends Shape {
 				return planerHit;
 			}
 		} 
-		// no renderable points, BOO!
-		throw new UnimplementedMethodException("intersect(Ray) Dome");
+		
+		return new Hit(Ops.infinity, new Vec());
 	}
 }
