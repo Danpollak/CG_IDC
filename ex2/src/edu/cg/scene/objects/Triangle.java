@@ -29,6 +29,16 @@ public class Triangle extends Shape {
 				"p3: " + p3 + endl;
 	}
 
+	public Plain toPlane(){
+
+		Vec p2p1 = this.p2.toVec().add(this.p1.toVec().neg());
+		Vec p3p1 = this.p3.toVec().add(this.p1.toVec().neg());
+		Vec Normal = p2p1.cross(p3p1);
+
+		double d = -(Normal.dot(p1.toVec()));
+		return new Plain( Normal.x,Normal.y, Normal.z, d);
+	}
+
 	@Override
 	public Hit intersect(Ray ray) {
 		
@@ -61,8 +71,12 @@ public class Triangle extends Shape {
 		if((Math.abs(a) < Ops.epsilon)||(u < 0) || (u > 1) || (u < 0)|| (u+v>1)){
 			return new Hit(Ops.infinity,new Vec());	
 		}
-		Hit meBabyOneMoreTime;
-		Hit meHarderDaddy = new Hit(t, normalToSurface);
-		return new Hit(Ops.infinity,new Vec());
+
+		// get the normal to the triangle
+		Vec p2p1 = this.p2.toVec().add(this.p1.toVec().neg());
+		Vec p3p1 = this.p3.toVec().add(this.p1.toVec().neg());
+		Vec normal = p2p1.cross(p3p1);
+
+		return new Hit(t, normal);
 	}
 }
