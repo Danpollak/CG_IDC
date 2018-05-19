@@ -280,8 +280,19 @@ public class Scene {
 		// I_d = Sum(light l):
 		// [K_diffusion*<normalToSurface,vectorFromLight>]I_l +
 		Vec Idiffusive = new Vec();
+		Point hitPoint = ray.add(hit.t());
+		Surface surface = hit.getSurface();
+		// note that all coef's are given as triplets,
+		// as each light component are orthogonal
+
+		Vec K_diffusion = surface.Kd(hitPoint);
+		Vec normalToSurface = hit.getNormalToSurface();
 		for(Light light : lightSources){
+			Vec vectorFromLight = light.getDirection(hitPoint);
+			Vec I_l = light.getIntensity(hitPoint);
+			double dotProduct = vectorFromLight.dot(normalToSurface);
 			
+			Idiffusive = Idiffusive.add(K_diffusion.mult(I_l).mult(dotProduct));
 		}
 		
 		return Idiffusive;
@@ -291,6 +302,12 @@ public class Scene {
 	// Iterates over all light sources,
 	// calculates the sum of specular intensities
 	private Vec calcSpecularIntensity(Hit hit, Ray ray){
+
+		// I - Intensity of light. K property of material
+		// <v,w> - dot prod of 2 vectors!
+		// specular - perpspective based
+		// I_spec = Sum(light l):
+		// [K_specular*(<vectorFromCamera,vectorFromLight>^n)]I_l
 
 		Vec Ispecular = new Vec();
 		return Ispecular;
