@@ -109,17 +109,18 @@ public class Plain extends Shape {
 
 	@Override
 	public Hit intersect(Ray ray) {
-		Vec N = this.normal();
+		
+		// solve the equation for t: (P0+(V*t))*N + d = 0
+		Vec N = new Vec(this.a, this.b, this.c); // not normalized for original values
 		Vec V = ray.direction();
 		Point P0 = ray.source();
-		// find some point on the plane
-		double z = -this.d / c;
-		Point Q0 = new Point(0,0,z);
-		double t = N.dot((Q0.sub(P0).mult(1/(N.dot(V)))));
-		if(t < 0) {
-			return new Hit(Ops.infinity, new Vec());
+		double equaValue = N.mult(P0)+this.d;
+		double t = -equaValue / N.dot(V);
+		if(Math.(t) < Ops.epsilon){
+			return null;
 		}
-		Hit hit = new Hit(t, this.normal());
+		// inverse normal if the ray is coming from the other side
+		Hit hit = new Hit(t,N.dot(V) > 0 ? this.normal() : this.normal().neg());
 		return hit;
 	}
 }

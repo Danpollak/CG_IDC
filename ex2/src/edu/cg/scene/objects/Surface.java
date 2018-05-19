@@ -30,7 +30,9 @@ public class Surface implements Intersectable {
 	@Override
 	public Hit intersect(Ray ray) {
 		Hit hit = this.shape.intersect(ray);
-		hit.setSurface(this);
+		if(hit != null) {
+			hit.setSurface(this);
+		}
 		return hit;
 	}
 	public String shapeType() {
