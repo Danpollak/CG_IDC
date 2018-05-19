@@ -230,6 +230,75 @@ public class Scene {
 		return color;
 	}
 
+	private Vec calcColorV2(Ray ray, int recusionLevel) {
+		Hit hit = FindIntersection(ray);
+		if (hit == null) {
+			return this.backgroundColor;
+		}
+		// I - Intensity of light. K property of material
+		// <v,w> - dot prod of 2 vectors!
+		// ambient - natural color of the material
+		// diffusal - light scattering
+		// specular - perpspective based
+		// I = I_emission + K_ambient*I_ambient +
+		// Sum(light l):
+		// [K_diffusion*<normalToSurface,vectorFromLight>]I_l +
+		// [K_specular*(<vectorFromCamera,vectorFromLight>^n)]I_l
+		Vec intensity = new Vec();
+		Vec ambientVec = clacAmbientIntensity(hit, ray);
+		Vec diffusiveVec = calcDiffusiveIntensity(hit, ray);
+		Vec specularVec = calcSpecularIntensity(hit, ray);
+		intensity = intensity.add(ambientVec)
+			.add(diffusiveVec).add(specularVec);
+		
+		
+//		if (recusionLevel == this.maxRecursionLevel) {
+//			return new Vec(0,0,0);
+//		}
+//		Ray out_ray = new Ray(hitPoint, N);
+//		out_ray.setSurface(surface);
+//		color= color.add(surface.Ks().mult(calcColor(out_ray, recusionLevel+1)));
+		return intensity;
+	}
+	
+	
+	private Vec clacAmbientIntensity(Hit hit, Ray ray){
+		Surface surface = hit.getSurface();
+		Vec Iambient = surface.Ka().mult(this.ambient);
+
+		return Iambient;
+	}
+
+
+	// Iterates over all light sources,
+	// calculates the sum of diffusive intensities
+	private Vec calcDiffusiveIntensity(Hit hit, Ray ray){
+
+		// I - Intensity of light. K property of material
+		// <v,w> - dot prod of 2 vectors!
+		// diffusal - light scattering
+		// I_d = Sum(light l):
+		// [K_diffusion*<normalToSurface,vectorFromLight>]I_l +
+		Vec Idiffusive = new Vec();
+		for(Light light : lightSources){
+			
+		}
+		
+		return Idiffusive;
+	}
+
+	
+	// Iterates over all light sources,
+	// calculates the sum of specular intensities
+	private Vec calcSpecularIntensity(Hit hit, Ray ray){
+
+		Vec Ispecular = new Vec();
+		return Ispecular;
+	}
+
+	// iterates over all surfaces,
+	// returns the first hit(if exsists) that occurs
+	// above the t axis
 	private Hit FindIntersection(Ray ray) {
 		Hit minHit = null;
 		Surface src = ray.surface();
