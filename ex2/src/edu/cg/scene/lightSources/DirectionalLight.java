@@ -25,14 +25,10 @@ public class DirectionalLight extends Light {
 	
 	@Override
 	public Vec getDirection(Point p) {
-		return this.direction;
+		return this.direction.normalize().neg();
 	}
 	
 	public Vec getIntensity(Point p) {
 		return this.intensity;
-	}
-	
-	public Vec getLightOnHitPoint(Point p) {
-		return this.getDirection(null).mult(this.getIntensity(null));
 	}
 }

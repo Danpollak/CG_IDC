@@ -43,18 +43,14 @@ public class Spotlight extends PointLight {
 	
 	@Override
 	public Vec getDirection(Point src) {
-		Vec direction = this.position.sub(src).normalize();
+		Vec direction = this.position.sub(src).normalize().neg();
 		return direction;
 	}
 	
 	public Vec getIntensity(Point src) {
 		double d = this.position.sub(src).norm();
-		double theta = this.direction.dot(getDirection(src));
+		double theta = this.direction.neg().dot(this.getDirection(src));
 		double decay = this.kc + this.kl*d + this.kq*d*d;
 		return this.intensity.mult(theta/decay);
-	}
-	
-	public Vec getLightOnHitPoint(Point src) {
-		return this.getDirection(src).mult(this.getIntensity(src));
 	}
 }
