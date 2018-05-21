@@ -64,6 +64,7 @@ public class Sphere extends Shape {
 		// if the far point is negative, return null (as the close one will also be negative)
 		if((t1 <= Ops.epislon)){
 			return null;
+			
 		}
 
 		if(t2 <= Ops.epislon){

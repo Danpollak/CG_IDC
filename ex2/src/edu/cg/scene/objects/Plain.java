@@ -116,7 +116,7 @@ public class Plain extends Shape {
 		Point P0 = ray.source();
 		double equaValue = N.mult(P0)+this.d;
 		double t = -equaValue / N.dot(V);
-		if(Math.(t) < Ops.epsilon){
+		if(Math.abs(t) < Ops.epsilon){
 			return null;
 		}
 		// inverse normal if the ray is coming from the other side
