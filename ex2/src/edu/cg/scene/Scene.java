@@ -291,8 +291,10 @@ public class Scene {
 			Vec vectorFromLight = light.getDirection(hitPoint);
 			Vec I_l = light.getIntensity(hitPoint);
 			double dotProduct = vectorFromLight.dot(normalToSurface);
+			if (!(occuluded(hitPoint, light))){
+				Idiffusive = Idiffusive.add(K_diffusion.mult(I_l).mult(dotProduct));
+			}
 			
-			Idiffusive = Idiffusive.add(K_diffusion.mult(I_l).mult(dotProduct));
 		}
 		
 		return Idiffusive;
@@ -357,4 +359,14 @@ public class Scene {
 		}
 		return minHit;
 	}
+
+	private boolean occuluded(Point point, Light light){
+
+		Ray pntToLight = new Ray(point, light.getDirection(point).neg());
+		if(FindIntersection(pntToLight) == null){
+			return true;
+		}
+		return false;
+	}
+
 }
