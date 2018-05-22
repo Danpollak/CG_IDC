@@ -94,8 +94,12 @@ public class Ops {
 	}
 	
 	public static Vec reflect(Vec u, Vec normal) {
-		//TODO: implement
-		throw new UnimplementedMethodException("Ops.reflect(Vec, Vec)");
+		//vec from light = u , normal to surface = normal
+		
+		double rotationscalar = (-2.0D)*(u.dot(normal));
+		Vec rotationVec = normal.mult(rotationscalar);
+		Vec reflectionVector = u.add(rotationVec);
+		return reflectionVector;
 	}
 	
 	public static Vec refract(Vec u, Vec normal, double n1, double n2) {

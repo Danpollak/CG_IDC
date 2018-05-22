@@ -307,9 +307,27 @@ public class Scene {
 		// <v,w> - dot prod of 2 vectors!
 		// specular - perpspective based
 		// I_spec = Sum(light l):
-		// [K_specular*(<vectorFromCamera,vectorFromLight>^n)]I_l
+		// [K_specular*(<vectorFromCamera,ReflectionOfVectorFromLight>^n)]I_l
 
 		Vec Ispecular = new Vec();
+		Point hitPoint = ray.add(hit.t());
+		Surface surface = hit.getSurface();
+		// note that all coef's are given as triplets,
+		// as each light component are orthogonal
+
+		Vec K_specular = surface.Kd(hitPoint);
+		Vec normalToSurface = hit.getNormalToSurface();
+		for(Light light : lightSources){
+			Vec vectorFromLight = light.getDirection(hitPoint);
+			Vec reflectionVector = Ops.reflect(vectorFromLight, normalToSurface);
+			
+			Vec I_l = light.getIntensity(hitPoint);
+			double dotProduct = reflectionVector.dot(ray.direction());
+			dotProduct = Math.pow(dotProduct, surface.shininess());
+			
+			Ispecular = Ispecular.add(K_specular.mult(I_l).mult(dotProduct));
+		}
+
 		return Ispecular;
 	}
 

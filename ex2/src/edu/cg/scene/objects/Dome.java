@@ -36,8 +36,8 @@ public class Dome extends Shape {
 		Point spheralPnt = ray.getHittingPoint(spheralHit);
 		Point planerPnt = ray.getHittingPoint(planerHit);
 		double cameraToPlane = this.plain.equationValue(ray.source());
-		double hitToPlane = this.plain.equationValue(spheralHit);
-		boolean isWithin - spheralHit.isWithinTheSurface();
+		double hitToPlane = this.plain.equationValue(spheralPnt);
+		boolean isWithin = spheralHit.isWithinTheSurface();
 
 		if(isWithin){
 			// handling an inner hit
@@ -73,12 +73,12 @@ public class Dome extends Shape {
 				return null;
 			}
 			// now check if the hit is "inside" the missing half of the sphere
-			if(this.sphere.pointInSphere(planerHit)){
+			if(this.sphere.pointInSphere(planerPnt)){
 				return planerHit;
 			}
 			return null;
 		}
-		return null;
+		
 		// if(spheralPnt.isFinite()){
 		// 	Vec arrow = spheralPnt.toVec()
 		// 	.add(this.sphere.getCenter().toVec().neg());

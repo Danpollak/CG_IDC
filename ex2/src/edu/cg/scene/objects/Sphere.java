@@ -43,8 +43,9 @@ public class Sphere extends Shape {
 	}
 
 	public boolean pointInSphere(Point p){
-		double equationValue = p.distSqua(this.center) - (Math.pow(this.radius,2));
+		double equationValue = p.distSqr(this.center) - (Math.pow(this.radius,2));
 		return equationValue < 0;
+		
 	}
 
 	@Override
@@ -67,20 +68,20 @@ public class Sphere extends Shape {
 			return null;
 		}
 		// if the far point is negative, return null (as the close one will also be negative)
-		if((t1 <= Ops.epislon)){
+		if((t1 <= Ops.epsilon)){
 			return null;
 			
 		}
 
-		if(t2 <= Ops.epislon){
+		if(t2 <= Ops.epsilon){
 			// if the "close" point is negative, the "far" point is the hit point, and an inner hit
-			double minT = t1;
+			minT = t1;
 			Point intersection = ray.add(minT);
 			// negate the normal as it is an inner hit
 			normal = intersection.sub(this.center).normalize().neg();
 			isWithin = true;
 		} else {
-			double minT = t2;
+			minT = t2;
 			Point intersection = ray.add(minT);
 			normal = intersection.sub(this.center).normalize();
 		}

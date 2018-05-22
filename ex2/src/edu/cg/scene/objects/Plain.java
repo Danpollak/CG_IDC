@@ -114,7 +114,7 @@ public class Plain extends Shape {
 		Vec N = new Vec(this.a, this.b, this.c); // not normalized for original values
 		Vec V = ray.direction();
 		Point P0 = ray.source();
-		double equaValue = equationValue(P);
+		double equaValue = equationValue(P0);
 		double t = -equaValue / N.dot(V);
 		if(t< Ops.epsilon || t > Ops.infinity){
 			return null;
@@ -126,6 +126,6 @@ public class Plain extends Shape {
 
 	public double equationValue(Point P){
 		Vec N = new Vec(this.a, this.b, this.c);
-		return N.mult(P) + this.d;
+		return N.dot(P.toVec()) + this.d;
 	}
 }
