@@ -327,7 +327,10 @@ public class Scene {
 			double dotProduct = reflectionVector.dot(ray.direction());
 			dotProduct = Math.pow(dotProduct, surface.shininess());
 			
-			Ispecular = Ispecular.add(K_specular.mult(I_l).mult(dotProduct));
+			if (!(occuluded(hitPoint, light))){
+				Ispecular = Ispecular.add(K_specular.mult(I_l).mult(dotProduct));
+			}
+			
 		}
 
 		return Ispecular;
