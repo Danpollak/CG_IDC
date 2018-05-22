@@ -42,6 +42,11 @@ public class Sphere extends Shape {
 		return this.center;
 	}
 
+	public boolean pointInSphere(Point p){
+		double equationValue = p.distSqua(this.center) - (Math.pow(this.radius,2));
+		return equationValue < 0;
+	}
+
 	@Override
 	public Hit intersect(Ray ray) {
 

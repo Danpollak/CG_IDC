@@ -42,7 +42,7 @@ public class PointLight extends Light {
 	}
 
 	public Vec getDirection(Point src) {
-		Vec direction = this.position.sub(src).normalize();
+		Vec direction = this.position.sub(src).normalize().neg();
 		return direction;
 	}
 
@@ -50,9 +50,5 @@ public class PointLight extends Light {
 		double d = this.position.sub(src).norm();
 		double decay = this.kc + this.kl * d + this.kq * d * d;
 		return this.intensity.mult(1 / decay);
-	}
-
-	public Vec getLightOnHitPoint(Point src) {
-		return this.getDirection(src).mult(this.getIntensity(src));
 	}
 }
