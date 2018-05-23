@@ -51,4 +51,8 @@ public class PointLight extends Light {
 		double decay = this.kc + this.kl * d + this.kq * d * d;
 		return this.intensity.mult(1 / decay);
 	}
+	
+	public double getDistance(Point src) {
+		return this.position.sub(src).norm();
+	}
 }

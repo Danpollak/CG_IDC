@@ -1,5 +1,6 @@
 package edu.cg.scene.lightSources;
 
+import edu.cg.algebra.Ops;
 import edu.cg.algebra.Point;
 import edu.cg.algebra.Vec;
 
@@ -30,5 +31,9 @@ public class DirectionalLight extends Light {
 	
 	public Vec getIntensity(Point p) {
 		return this.intensity;
+	}
+	
+	public double getDistance(Point p) {
+		return Ops.infinity;
 	}
 }

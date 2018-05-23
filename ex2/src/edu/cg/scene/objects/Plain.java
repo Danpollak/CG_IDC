@@ -120,7 +120,7 @@ public class Plain extends Shape {
 			return null;
 		}
 		// inverse normal if the ray is coming from the other side
-		Hit hit = new Hit(t,N.dot(V) > 0 ? this.normal() : this.normal().neg());
+		Hit hit = new Hit(t,N.dot(V) < 0 ? this.normal() : this.normal().neg());
 		return hit;
 	}
 

@@ -186,7 +186,7 @@ public class Scene {
 			// TODO: change this method implementation to implement super sampling
 			Point pointOnScreenPlain = transformaer.transform(x, y);
 			Ray ray = new Ray(camera, pointOnScreenPlain);
-			return calcColor(ray, 0).toColor();
+			return calcColorV2(ray, 0).toColor();
 		});
 	}
 
@@ -235,6 +235,7 @@ public class Scene {
 		if (hit == null) {
 			return this.backgroundColor;
 		}
+		
 		// I - Intensity of light. K property of material
 		// <v,w> - dot prod of 2 vectors!
 		// ambient - natural color of the material
@@ -244,14 +245,18 @@ public class Scene {
 		// Sum(light l):
 		// [K_diffusion*<normalToSurface,vectorFromLight>]I_l +
 		// [K_specular*(<vectorFromCamera,vectorFromLight>^n)]I_l
-		Vec intensity = new Vec();
+		Vec intensity = new Vec(0,0,0);
 		Vec ambientVec = clacAmbientIntensity(hit, ray);
+//		this.logger.log(hit);
 		Vec diffusiveVec = calcDiffusiveIntensity(hit, ray);
+//		this.logger.log("done diff");
 		Vec specularVec = calcSpecularIntensity(hit, ray);
+//		this.logger.log("done spec");
 		intensity = intensity.add(ambientVec)
 			.add(diffusiveVec).add(specularVec);
-		
-		
+		if(specularVec.x < 0 || specularVec.y < 0 ||specularVec.z < 0 ) {
+			this.logger.log("negative  diffuse");
+		}
 //		if (recusionLevel == this.maxRecursionLevel) {
 //			return new Vec(0,0,0);
 //		}
@@ -263,9 +268,12 @@ public class Scene {
 	
 	
 	private Vec clacAmbientIntensity(Hit hit, Ray ray){
+		
+		
 		Surface surface = hit.getSurface();
+		
 		Vec Iambient = surface.Ka().mult(this.ambient);
-
+		
 		return Iambient;
 	}
 
@@ -279,7 +287,7 @@ public class Scene {
 		// diffusal - light scattering
 		// I_d = Sum(light l):
 		// [K_diffusion*<normalToSurface,vectorFromLight>]I_l +
-		Vec Idiffusive = new Vec();
+		Vec Idiffusive = new Vec(0,0,0);
 		Point hitPoint = ray.add(hit.t());
 		Surface surface = hit.getSurface();
 		// note that all coef's are given as triplets,
@@ -289,14 +297,18 @@ public class Scene {
 		Vec normalToSurface = hit.getNormalToSurface();
 		for(Light light : lightSources){
 			Vec vectorFromLight = light.getDirection(hitPoint);
+//			this.logger.log("vectorFromLight");
 			Vec I_l = light.getIntensity(hitPoint);
+//			this.logger.log("getIntensity");
 			double dotProduct = vectorFromLight.dot(normalToSurface);
-			if (!(occuluded(hitPoint, light))){
-				Idiffusive = Idiffusive.add(K_diffusion.mult(I_l).mult(dotProduct));
+			if (occuluded(hit, hitPoint, light)){
+//				this.logger.log("Kdiff: " + K_diffusion.toString() + " I_l:" + I_l.toString() + " dotP: " + dotProduct);
+				Idiffusive = Idiffusive.add(K_diffusion.mult(I_l).mult(dotProduct));	
 			}
 			
+//			this.logger.log("K diff:" + K_diffusion.toString() + " intensity:" + I_l.toString() + " dotProduct:" + dotProduct);
+			
 		}
-		
 		return Idiffusive;
 	}
 
@@ -311,13 +323,13 @@ public class Scene {
 		// I_spec = Sum(light l):
 		// [K_specular*(<vectorFromCamera,ReflectionOfVectorFromLight>^n)]I_l
 
-		Vec Ispecular = new Vec();
+		Vec Ispecular = new Vec(0,0,0);
 		Point hitPoint = ray.add(hit.t());
 		Surface surface = hit.getSurface();
 		// note that all coef's are given as triplets,
 		// as each light component are orthogonal
 
-		Vec K_specular = surface.Kd(hitPoint);
+		Vec K_specular = surface.Ks();
 		Vec normalToSurface = hit.getNormalToSurface();
 		for(Light light : lightSources){
 			Vec vectorFromLight = light.getDirection(hitPoint);
@@ -327,12 +339,11 @@ public class Scene {
 			double dotProduct = reflectionVector.dot(ray.direction());
 			dotProduct = Math.pow(dotProduct, surface.shininess());
 			
-			if (!(occuluded(hitPoint, light))){
-				Ispecular = Ispecular.add(K_specular.mult(I_l).mult(dotProduct));
-			}
 			
+			if (occuluded(hit, hitPoint, light)){
+				Ispecular = Ispecular.add(K_specular.mult(I_l).mult(dotProduct));	
+			}
 		}
-
 		return Ispecular;
 	}
 
@@ -344,18 +355,22 @@ public class Scene {
 		Surface src = ray.surface();
 		for (Surface surface : surfaces) {
 			// check if you are not checking intersection with yourself
-			if(surface != src) {
-				Hit currentHit = surface.intersect(ray);
-				if (currentHit != null) {
-					if (minHit == null) {
+			Hit currentHit = surface.intersect(ray);
+			if (currentHit != null) {
+				if(surface == src && currentHit.isWithinTheSurface()) {
+					return currentHit;
+				}
+				if (minHit == null) {
+					minHit = currentHit;
+				} else {
+					if (minHit.t() > currentHit.t()) {
 						minHit = currentHit;
-					} else {
-						if (minHit.t() > currentHit.t()) {
-							minHit = currentHit;
-						}
 					}
 				}
 			}
+		}
+		if(minHit == null) {
+			return null;
 		}
 		if(minHit.t() == Ops.infinity) {
 			return null;
@@ -363,10 +378,17 @@ public class Scene {
 		return minHit;
 	}
 
-	private boolean occuluded(Point point, Light light){
-
-		Ray pntToLight = new Ray(point, light.getDirection(point).neg());
-		if(FindIntersection(pntToLight) == null){
+	private boolean occuluded(Hit hit,Point hitPoint, Light light){
+//		return true;
+		Ray pntToLight = new Ray(hitPoint, light.getDirection(hitPoint));
+		pntToLight.setSurface(hit.getSurface());
+		Hit lightHit = FindIntersection(pntToLight);
+		if( lightHit == null){
+			return true;
+		}
+		double d = light.getDistance(hitPoint);
+		double hitD = hitPoint.dist(pntToLight.add(lightHit.t()));
+		if(d < hitD) {
 			return true;
 		}
 		return false;
