@@ -183,23 +183,10 @@ public class Scene {
 
 	private Future<Color> calcColor(int x, int y) {
 		return executor.submit(() -> {
-			Point topLeft = this.transformaer.transform(x, y);
-			Point bottomRight = this.transformaer.transform(x+1, y+1);
-			Vec color = new Vec(0,0,0);
-			for(double i=0;i<this.antiAliasingFactor;i++) {
-				for(double j=0;j<this.antiAliasingFactor;j++) {
-					double deltaX = bottomRight.x - topLeft.x;
-					double deltaY = bottomRight.y - topLeft.y;
-					double currentX = topLeft.x + (i/this.antiAliasingFactor)*deltaX;
-					double currentY = topLeft.y + (j/this.antiAliasingFactor)*deltaY;
-					Point currentPoint = new Point(currentX,currentY,0);
-					Ray ray = new Ray(camera, currentPoint);
-					color = color.add(calcColor(ray,0));
-				}
-			}
-			double sampleNumber = this.antiAliasingFactor*this.antiAliasingFactor;
-			color = color.mult(1 /sampleNumber);
-			return color.toColor();
+			// TODO: change this method implementation to implement super sampling
+			Point pointOnScreenPlain = transformaer.transform(x, y);
+			Ray ray = new Ray(camera, pointOnScreenPlain);
+			return calcColor(ray, 0).toColor();
 		});
 	}
 

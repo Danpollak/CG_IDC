@@ -1,9 +1,9 @@
 {
-  "name": "scene1",
-  "maxRecursionLevel": 1,
+  "name": "scene3",
+  "maxRecursionLevel": 6,
   "antiAliasingFactor": 3,
-  "renderRefarctions": false,
-  "renderReflections": false,
+  "renderRefarctions": true,
+  "renderReflections": true,
   "camera": {
     "x": 0.0,
     "y": 0.0,
@@ -21,13 +21,29 @@
   },
   "lightSources": [
     {
-      "CLASSNAME": "edu.cg.scene.lightSources.PointLight",
+      "CLASSNAME": "edu.cg.scene.lightSources.DirectionalLight",
+      "DATA": {
+        "direction": {
+          "x": 0.0,
+          "y": 0.5,
+          "z": -1.0
+        },
+        "intensity": {
+          "x": 0.7,
+          "y": 0.5,
+          "z": 0.0
+        }
+      }
+    },
+    {
+      "CLASSNAME": "edu.cg.scene.lightSources.Spotlight",
       "DATA": {
         "direction": {
           "x": 0.5,
           "y": 0.0,
           "z": -1.0
         },
+        "angle": 0.6,
         "position": {
           "x": 2.0,
           "y": 1.0,
