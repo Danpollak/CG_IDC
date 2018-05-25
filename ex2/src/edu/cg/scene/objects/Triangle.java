@@ -30,53 +30,44 @@ public class Triangle extends Shape {
 	}
 
 	public Plain toPlane(){
+		
+		Vec p2p1 = this.p2.sub(this.p1);
+		Vec p3p1 = this.p3.sub(this.p1);
+		Vec normal = p2p1.cross(p3p1);
 
-		Vec p2p1 = this.p2.toVec().add(this.p1.toVec().neg());
-		Vec p3p1 = this.p3.toVec().add(this.p1.toVec().neg());
-		Vec Normal = p2p1.cross(p3p1);
-
-		double d = -(Normal.dot(p1.toVec()));
-		return new Plain( Normal.x,Normal.y, Normal.z, d);
+		double d = -(normal.dot(p1.toVec()));
+		return new Plain( normal.x,normal.y, normal.z, d);
 	}
 
 	@Override
 	public Hit intersect(Ray ray) {
 		
-		// this is done using the moller-trumbpre algorithm.
-		Vec v1,v2,v3,e1,e2,h,s,q;
-		double a,f,u,v,t;
-
-		
-		v1 = this.p1.toVec();
-		v2 = this.p2.toVec();
-		v3 = this.p3.toVec();
-
-		
-		e1 = v2.add(v1.neg());
-		e2 = v3.add(v1.neg());
-
-		h = ray.direction().cross(e2);
-		a = e1.dot(h);
-		
-		f = 1/a;
-		s = ray.source().toVec().add(v1.neg());
-		u = f*(s.dot(h));
-
-		q = s.cross(e1);
-		v = f*(ray.direction().dot(q));
-
-		t = f*(e2.dot(q));
-
-		// checking validity of the result
-		if((Math.abs(a) < Ops.epsilon)||(u < 0) || (u > 1) || (u < 0)|| (u+v>1)){
-			return new Hit(Ops.infinity,new Vec());	
+		// check if the ray intersects the plane at all
+		Plain plane = this.toPlane();
+		Hit hit = plane.intersect(ray);
+		if(hit == null) {
+			return null;
 		}
-
-		// get the normal to the triangle
-		Vec p2p1 = this.p2.toVec().add(this.p1.toVec().neg());
-		Vec p3p1 = this.p3.toVec().add(this.p1.toVec().neg());
-		Vec normal = p2p1.cross(p3p1);
-
-		return new Hit(t, normal);
+		// make sure that the intersection is within the triangle
+		// using barycentric coordinates
+		
+		Point hittingPoint = ray.getHittingPoint(hit);
+		Vec p2p1 = this.p2.sub(this.p1); // b - a
+		Vec p3p1 = this.p3.sub(this.p1); // c - a
+		Vec hitp1 = hittingPoint.sub(this.p1); // a - P
+		double d00 = p2p1.normSqr();
+		double d01 = p2p1.dot(p3p1);
+		double d11 = p3p1.normSqr();
+		double d20 = hitp1.dot(p2p1);
+		double d21 = hitp1.dot(p3p1);
+		double denom = d00 * d11 - d01 * d01 ;
+		double alpha = (d11 * d20 - d01 * d21) / denom;
+		double beta = (d00 * d21 - d01 * d20) / denom;
+		double gamma = 1 - alpha - beta;
+		
+		if((0 <= alpha) && (0 <= beta) && (0 <= gamma) && (alpha <= 1) && (beta <= 1) && (gamma <= 1)) {
+			return hit;
+		}
+		return null;
 	}
 }

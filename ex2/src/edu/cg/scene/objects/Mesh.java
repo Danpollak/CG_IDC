@@ -85,13 +85,18 @@ public class Mesh extends Shape implements Iterable<Triangle> {
 	@Override
 	public Hit intersect(Ray ray) {
 
-		Hit minHit = new Hit(Ops.infinity, new Vec());
+		Hit minHit = null;
 		for(Triplet triplet : indices){
 			Triangle triangle = makeTriangle(triplet);
 			Hit hit = triangle.intersect(ray);
-			double hitT= hit.t();
-			if ((hitT < minHit.t())&&(hitT > Ops.epsilon)&&(hitT < Ops.infinity)){
-				minHit = hit;
+			if(hit != null) {
+				double hitT= hit.t();
+				if(minHit == null) {
+					minHit = hit;
+				}
+				else if (hitT < minHit.t()){
+					minHit = hit;
+				}
 			}
 		}
 		return minHit;
