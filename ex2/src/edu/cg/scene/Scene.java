@@ -232,10 +232,12 @@ public class Scene {
 
 	private Vec calcColorV2(Ray ray, int recusionLevel) {
 		Hit hit = FindIntersection(ray);
+		if (recusionLevel == this.maxRecursionLevel) {
+			return new Vec(0,0,0);
+		}
 		if (hit == null) {
 			return this.backgroundColor;
 		}
-		
 		// I - Intensity of light. K property of material
 		// <v,w> - dot prod of 2 vectors!
 		// ambient - natural color of the material
@@ -251,18 +253,10 @@ public class Scene {
 		Vec diffusiveVec = calcDiffusiveIntensity(hit, ray);
 //		this.logger.log("done diff");
 		Vec specularVec = calcSpecularIntensity(hit, ray);
+		Vec reflectionVec = calcReflectionIntensity(hit, ray, recusionLevel);
 //		this.logger.log("done spec");
 		intensity = intensity.add(ambientVec)
-			.add(diffusiveVec).add(specularVec);
-		if(specularVec.x < 0 || specularVec.y < 0 ||specularVec.z < 0 ) {
-			this.logger.log("negative  diffuse");
-		}
-//		if (recusionLevel == this.maxRecursionLevel) {
-//			return new Vec(0,0,0);
-//		}
-//		Ray out_ray = new Ray(hitPoint, N);
-//		out_ray.setSurface(surface);
-//		color= color.add(surface.Ks().mult(calcColor(out_ray, recusionLevel+1)));
+			.add(diffusiveVec).add(specularVec).add(reflectionVec);
 		return intensity;
 	}
 	
@@ -346,9 +340,20 @@ public class Scene {
 		}
 		return Ispecular;
 	}
+	
+	// returns the reflection color vector by recursive colorCalc
+	private Vec calcReflectionIntensity(Hit hit, Ray ray, int recusionLevel) {
+			Surface surface = hit.getSurface();
+			Vec normalToSurface = hit.getNormalToSurface();
+			Vec reflectVec = Ops.reflect(ray.direction(), normalToSurface);
+			Ray out_ray = new Ray(ray.add(hit.t()),reflectVec);
+			double reflectionIntensity = surface.reflectionIntensity();
+			Vec reflectionColor = calcColorV2(out_ray, recusionLevel+1);
+			return reflectionColor.mult(surface.Ks()).mult(reflectionIntensity);
+	}
 
 	// iterates over all surfaces,
-	// returns the first hit(if exsists) that occurs
+	// returns the first hit(if exists) that occurs
 	// above the t axis
 	private Hit FindIntersection(Ray ray) {
 		Hit minHit = null;
