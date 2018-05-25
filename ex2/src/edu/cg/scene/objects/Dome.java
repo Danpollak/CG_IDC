@@ -31,10 +31,13 @@ public class Dome extends Shape {
 		if(spheralHit == null) {
 			return null;
 		}
-
+		
 		Hit planerHit = this.plain.intersect(ray);
+		Point planerPnt = null;
+		if(planerHit != null) {
+			planerPnt = ray.getHittingPoint(planerHit);
+		}
 		Point spheralPnt = ray.getHittingPoint(spheralHit);
-		Point planerPnt = ray.getHittingPoint(planerHit);
 		double cameraToPlane = this.plain.equationValue(ray.source());
 		double hitToPlane = this.plain.equationValue(spheralPnt);
 		boolean isWithin = spheralHit.isWithinTheSurface();
@@ -78,19 +81,5 @@ public class Dome extends Shape {
 			}
 			return null;
 		}
-		
-		// if(spheralPnt.isFinite()){
-		// 	Vec arrow = spheralPnt.toVec()
-		// 	.add(this.sphere.getCenter().toVec().neg());
-
-		// 	double cos = arrow.dot(this.plain.normal());
-		// 	if (cos > 0){
-		// 		return spheralHit;
-		// 	} else if(planerPnt.isFinite()){
-		// 		return planerHit;
-		// 	}
-		// } 
-		
-		// return new Hit(Ops.infinity, new Vec());
 	}
 }

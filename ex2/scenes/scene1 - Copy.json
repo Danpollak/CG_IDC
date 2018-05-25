@@ -21,14 +21,13 @@
   },
   "lightSources": [
     {
-      "CLASSNAME": "edu.cg.scene.lightSources.Spotlight",
+      "CLASSNAME": "edu.cg.scene.lightSources.PointLight",
       "DATA": {
         "direction": {
           "x": 0.5,
           "y": 0.0,
           "z": -1.0
         },
-        "angle": 0.6,
         "position": {
           "x": 2.0,
           "y": 1.0,

@@ -86,6 +86,7 @@ public class Mesh extends Shape implements Iterable<Triangle> {
 	public Hit intersect(Ray ray) {
 
 		Hit minHit = null;
+		// check all triangles in mesh and show the one that intersect closest to ray
 		for(Triplet triplet : indices){
 			Triangle triangle = makeTriangle(triplet);
 			Hit hit = triangle.intersect(ray);

@@ -42,7 +42,7 @@ public class PointLight extends Light {
 	}
 
 	public Vec getDirection(Point src) {
-		Vec direction = this.position.sub(src).normalize().neg();
+		Vec direction = this.position.sub(src).normalize();
 		return direction;
 	}
 
