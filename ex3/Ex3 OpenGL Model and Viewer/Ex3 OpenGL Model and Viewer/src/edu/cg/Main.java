@@ -43,7 +43,7 @@ public class Main {
 		caps.setSampleBuffers(true);
 		caps.setNumSamples(9);
 		final GLJPanel canvas = new GLJPanel(caps);
-		Viewer viewer = new Viewer(canvas);
+		final Viewer viewer = new Viewer(canvas);
 		viewer.setModel(Main.nextModel());
 		frame.setSize(500, 500);
 		frame.setLayout(new BorderLayout());
@@ -92,22 +92,22 @@ public class Main {
 		});
 		canvas.addMouseMotionListener(new MouseMotionAdapter(){
 
-			@Override
+	
 			public void mouseDragged(MouseEvent e) {
-				viewer.trackball(Main.prevMouse, e.getPoint());
+				viewer.storeTrackball(Main.prevMouse, e.getPoint());
 				Main.prevMouse = e.getPoint();
 			}
 		});
 		canvas.addMouseListener(new MouseAdapter(){
 
-			@Override
+
 			public void mousePressed(MouseEvent e) {
 				Main.prevMouse = e.getPoint();
 				viewer.startAnimation();
 				super.mousePressed(e);
 			}
 
-			@Override
+			
 			public void mouseReleased(MouseEvent e) {
 				viewer.stopAnimation();
 				super.mouseReleased(e);
@@ -115,7 +115,7 @@ public class Main {
 		});
 		canvas.addMouseWheelListener(new MouseWheelListener(){
 
-			@Override
+
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				double rot = e.getWheelRotation();
 				viewer.zoom(rot);
