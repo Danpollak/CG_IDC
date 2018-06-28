@@ -38,8 +38,7 @@ public class Viewer
 		}
 		// gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //BackGround could be black or white!
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-		//gl.glClear(16640);
-		gl.glMatrixMode(5888);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		this.setupCamera(gl);
 		if (this.isAxes) {
 			this.renderAxes(gl);
@@ -82,7 +81,7 @@ public class Viewer
 
 	private void trackBallZoom(GL2 gl){
 		gl.glMultMatrixd(this.rotationMatrix, 0);
-		gl.glGetDoublev(2982, this.rotationMatrix, 0);
+		gl.glGetDoublev(GL2.GL_MODELVIEW_MATRIX, this.rotationMatrix, 0);
 		gl.glLoadIdentity();
 		gl.glTranslated(0.0, 0.0, -1.2);
 		gl.glTranslated(0.0, 0.0, - zoom);
@@ -128,10 +127,6 @@ public class Viewer
 		gl.glCullFace(GL2.GL_BACK);// Set Culling Face To Back Face
 		gl.glEnable(GL2.GL_CULL_FACE);// Enable back face culling
 		gl.glEnable(GL2.GL_DEPTH_TEST);// Enable Depth Test
-//		gl.glEnable(2977);
-//		gl.glEnable(2929);
-//		gl.glLightModelf(2898, 1.0f);
-//		gl.glEnable(2896);
 		this.model.init(gl);
 		if (this.model.isAnimated()) {
 			this.startAnimation();
@@ -210,8 +205,8 @@ public class Viewer
 
 	private void renderAxes(GL2 gl) {
 		gl.glLineWidth(2.0f);
-		boolean flag = gl.glIsEnabled(2896);
-		gl.glDisable(2896);
+		boolean flag = gl.glIsEnabled(GL2.GL_LIGHTING);
+		gl.glDisable(GL2.GL_LIGHTING);
 		gl.glBegin(1);
 		gl.glColor3d(1.0, 0.0, 0.0);
 		gl.glVertex3d(0.0, 0.0, 0.0);
@@ -224,7 +219,7 @@ public class Viewer
 		gl.glVertex3d(0.0, 0.0, 1.0);
 		gl.glEnd();
 		if (flag) {
-			gl.glEnable(2896);
+			gl.glEnable(GL2.GL_LIGHTING);
 		}
 	}
 

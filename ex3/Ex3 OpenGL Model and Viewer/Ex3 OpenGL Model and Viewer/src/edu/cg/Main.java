@@ -37,17 +37,22 @@ public class Main {
 
 	public static void main(String[] args) {
 		frame = new JFrame();
+		// General OpenGL initialization
 		GLProfile.initSingleton();
-		GLProfile glp = GLProfile.get("GL2");
+		GLProfile glp = GLProfile.get(GLProfile.GL2);
 		GLCapabilities caps = new GLCapabilities(glp);
+
 		caps.setSampleBuffers(true);
 		caps.setNumSamples(9);
+
+		// Create viewer and initialize with first model
 		final GLJPanel canvas = new GLJPanel(caps);
-		Viewer viewer = new Viewer(canvas);
-		viewer.setModel(Main.nextModel());
+		final Viewer viewer = new Viewer(canvas);
+		viewer.setModel(nextModel());
+
 		frame.setSize(500, 500);
 		frame.setLayout(new BorderLayout());
-		frame.add((Component)canvas, "Center");
+		frame.add(canvas, BorderLayout.CENTER);
 		canvas.addGLEventListener(viewer);
 		frame.addWindowListener(new WindowAdapter(){
 
@@ -61,48 +66,61 @@ public class Main {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				switch (e.getKeyChar()) {
-					case 'P':
-					case 'p': {
+					// Toggle wireframe mode
+					case 'p':
+					case KeyEvent.VK_P:
+					{
 						viewer.toggleRenderMode();
 						break;
 					}
-					case 'A':
-					case 'a': {
+					// Toggle axes
+					case 'a':
+					case KeyEvent.VK_A:
 						viewer.toggleAxes();
 						break;
-					}
-					case 'L':
-					case 'l': {
+
+					// Toggle light spheres
+					case 'l':
+					case KeyEvent.VK_L:
 						viewer.toggleLightSpheres();
 						break;
-					}
-					case 'M':
-					case 'm': {
-						viewer.setModel(Main.nextModel());
+
+					// Show next model
+					case 'm':
+					case KeyEvent.VK_M:
+						viewer.setModel(nextModel());
 						break;
-					}
-					case '\u001b': {
+
+					// exit
+					case KeyEvent.VK_ESCAPE:
 						System.exit(0);
+						break; //should never reach this line;
+
+					default:
 						break;
-					}
 				}
+
+				// Set camera to follow model (ex6)
+				//ex6: uncomment the following 2 lines to enable placing the camera ralative to the model
+				//if (e.getKeyChar() == 'c')
+				//	viewer.toggleModelCamera();
+
 				canvas.repaint();
 				super.keyTyped(e);
 			}
 		});
-		canvas.addMouseMotionListener(new MouseMotionAdapter(){
-
+		canvas.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				viewer.trackball(Main.prevMouse, e.getPoint());
-				Main.prevMouse = e.getPoint();
+				// Let mouse drag affect trackball view
+				viewer.storeTrackball(prevMouse, e.getPoint());
+				prevMouse = e.getPoint();
 			}
 		});
-		canvas.addMouseListener(new MouseAdapter(){
-
+		canvas.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				Main.prevMouse = e.getPoint();
+				prevMouse = e.getPoint();
 				viewer.startAnimation();
 				super.mousePressed(e);
 			}
@@ -113,26 +131,33 @@ public class Main {
 				super.mouseReleased(e);
 			}
 		});
-		canvas.addMouseWheelListener(new MouseWheelListener(){
 
+		canvas.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
+				// Let mouse wheel affect zoom
 				double rot = e.getWheelRotation();
-				viewer.zoom(rot);
+				viewer.zoom(rot); //zoom out for negative rot, zoom in for positive rot.
 				canvas.repaint();
 			}
 		});
+		// Show frame
 		canvas.setFocusable(true);
 		canvas.requestFocus();
 		frame.setVisible(true);
 		canvas.repaint();
 	}
 
+	/**
+	 * Return the next model in the array
+	 *
+	 * @return Renderable model
+	 */
 	private static IRenderable nextModel() {
 		IRenderable model = models[currentModel++];
 		frame.setTitle("Exercise 5 - " + model.toString());
-		currentModel %= models.length;
+		currentModel = currentModel%models.length;
+
 		return model;
 	}
-
 }
