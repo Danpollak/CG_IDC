@@ -1,0 +1,5 @@
+INDEX VERSION 1.130+C:\code\CG_IDC\.metadata\.plugins\org.eclipse.jdt.core
+3671134919.index
+2425014488.index
+1419957313.index
+3087899941.index

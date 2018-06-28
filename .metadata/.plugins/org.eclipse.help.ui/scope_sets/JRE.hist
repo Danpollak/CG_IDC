@@ -1,0 +1,4 @@
+#Wed May 23 18:40:29 IDT 2018
+__DEFAULT__=false
+org.eclipse.help.ui.localSearch.master=true
+expression=JRE

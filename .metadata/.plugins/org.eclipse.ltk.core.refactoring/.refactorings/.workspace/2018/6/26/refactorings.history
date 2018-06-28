@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;Ex3 OpenGL Model and Viewer&apos;" deleteContents="false" description="Delete resource &apos;Ex3 OpenGL Model and Viewer&apos;" element1="/Ex3 OpenGL Model and Viewer" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1530208769397"/>
+</session>
