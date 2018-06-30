@@ -13,6 +13,7 @@ import com.jogamp.opengl.util.texture.TextureIO;
 
 import edu.cg.CyclicList;
 import edu.cg.TrackPoints;
+import edu.cg.algebra.CubicSpline;
 import edu.cg.algebra.Point;
 
 public class Track implements IRenderable {
@@ -20,6 +21,9 @@ public class Track implements IRenderable {
 	private CyclicList<Point> trackPoints;
 	private Texture texGrass = null;
 	private Texture texTrack = null;
+	private CubicSpline curve;
+	private double t = 0;
+	private double vel = 1;
 	
 	public Track(IRenderable vehicle, CyclicList<Point> trackPoints) {
 		this.vehicle = vehicle;
@@ -32,15 +36,16 @@ public class Track implements IRenderable {
 	
 	public Track() {
 		//TODO: uncomment this and change it if for your needs.
-//		this(new Locomotive());
+		this(new Locomotive());
 	}
 
 	@Override
 	public void init(GL2 gl) {
-		//TODO: Build your track splines here.
+		//Build your track splines here.
 		//Compute the length of each spline.
 		//Do not repeat those calculations over and over in the render method.
 		//It will make the application to run not smooth.  
+		curve = new CubicSpline(trackPoints);
 		loadTextures(gl);
 		vehicle.init(gl);
 	}
@@ -141,11 +146,13 @@ public class Track implements IRenderable {
 	public void control(int type, Object params) {
 		switch(type) {
 		case KeyEvent.VK_UP:
-			//TODO: increase the locomotive velocity
+			//increase the locomotive velocity
+			vel += 1;
 			break;
 			
 		case KeyEvent.VK_DOWN:
-			//TODO: decrease the locomotive velocity
+			//decrease the locomotive velocity
+			vel -= 1;
 			break;
 			
 		case KeyEvent.VK_ENTER:

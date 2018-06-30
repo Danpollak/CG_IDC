@@ -36,7 +36,7 @@ public class Track implements IRenderable {
 	
 	public Track() {
 		//TODO: uncomment this and change it if for your needs.
-//		this(new Locomotive());
+		this(new Locomotive());
 	}
 
 	@Override

@@ -9,6 +9,7 @@
 		<item value="true" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
 		<item value="false" key="WizardProjectsImportPage.STORE_ARCHIVE_SELECTED"/>
 		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="C:\code\CG_IDC\ex4\ex4"/>
 			<item value="C:\code\CG_IDC"/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
