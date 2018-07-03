@@ -15,6 +15,8 @@ import edu.cg.CyclicList;
 import edu.cg.TrackPoints;
 import edu.cg.algebra.CubicSpline;
 import edu.cg.algebra.Point;
+import edu.cg.algebra.CubicSpline.PolyVec;
+import edu.cg.algebra.CubicSpline;
 
 public class Track implements IRenderable {
 	private IRenderable vehicle;
@@ -131,14 +133,33 @@ public class Track implements IRenderable {
 		gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR_MIPMAP_LINEAR);
 		gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAX_LOD, 2);
 		
-		//TODO: implement track rendering here...
+		gl.glBegin(GL2.GL_TRIANGLES);
 		
+		CyclicList<PolyVec> segmants = this.curve.polys;
+		
+		for(PolyVec segmant : segmants) {
+			double segmantLength = segmant.length();
+			double numOfBoards = (int)(segmantLength / 0.1) + 1;
+			double dt = 1 / segmantLength;
+			double t=0;
+			for(int i=0;i<numOfBoards;i++) {
+				this.renderTrackBoard(gl, segmant, t, dt);
+				t+=dt;
+			}
+			
+		}
+		
+		gl.glEnd();
 		
 		if(lightningEnabled)
 			gl.glEnable(GL2.GL_LIGHTING);
 		
 		gl.glDisable(GL2.GL_BLEND);
 		gl.glDisable(GL2.GL_TEXTURE_2D);
+	}
+	
+	public void renderTrackBoard(GL2 gl, PolyVec segmant, double t, double dt) {
+		
 	}
 
 	@SuppressWarnings("unchecked")

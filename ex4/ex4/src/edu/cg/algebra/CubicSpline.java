@@ -6,7 +6,7 @@ import Jama.Matrix;
 
 public class CubicSpline{
 
-    CyclicList<PolyVec> polys;
+    public CyclicList<PolyVec> polys;
     final double length;
 
     /**
@@ -82,7 +82,7 @@ public class CubicSpline{
             sum += f_i.length();  
         }
         
-        length = sum;
+        this.length = sum;
         
         
     }
@@ -111,7 +111,7 @@ public class CubicSpline{
     }
 
     
-    class PolyVec{
+    public class PolyVec{
 
         CubicPolynomial x;
         CubicPolynomial y;
@@ -127,11 +127,11 @@ public class CubicSpline{
             return new PolyVec(x.deriv(), y.deriv(), z.deriv());
         }
 
-        Vec eval(double t){
+        public Vec eval(double t){
             return new Vec( x.eval(t), y.eval(t),z.eval(t));
         }
 
-        double length(){
+        public double length(){
             double sum = 0;
             for(double t = 0 ; t < 2000 ; t++){
                 sum += eval(t/2000).add(eval((t+1)/2000).neg()).norm();
@@ -139,7 +139,7 @@ public class CubicSpline{
             return sum;
         }
 
-        Vec normal(double t){
+        public Vec normal(double t){
             PolyVec dt = this.deriv();
             PolyVec ddt = dt.deriv();
             Vec normal = dt.eval(t).cross(ddt.eval(t)).cross(dt.eval(t));
