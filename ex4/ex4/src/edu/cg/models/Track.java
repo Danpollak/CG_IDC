@@ -15,6 +15,7 @@ import edu.cg.CyclicList;
 import edu.cg.TrackPoints;
 import edu.cg.algebra.CubicSpline;
 import edu.cg.algebra.Point;
+import edu.cg.algebra.Vec;
 import edu.cg.algebra.CubicSpline.PolyVec;
 import edu.cg.algebra.CubicSpline;
 
@@ -159,7 +160,38 @@ public class Track implements IRenderable {
 	}
 	
 	public void renderTrackBoard(GL2 gl, PolyVec segmant, double t, double dt) {
-		
+		Vec a0 = segmant.tangent(t).cross(segmant.normal(t));
+		Vec a1 = segmant.tangent(t+dt).cross(segmant.normal(t+dt));
+		Point p = segmant.position(t);
+		Point pt = segmant.position(t+dt);
+        Point p0 = p.add(a0.mult(0.05f));
+        Point p1 = pt.add(a1.mult(0.05f));
+        Point p2 = pt.add(a1.mult(-0.05f));
+        Point p3 = p.add(a0.mult(-0.05f));
+        gl.glTexCoord2d(0.0, 0.0);
+        gl.glVertex3fv(p0.toGLVertex());
+        gl.glTexCoord2d(0.0, 1.0);
+        gl.glVertex3fv(p1.toGLVertex());
+        gl.glTexCoord2d(1.0, 1.0);
+        gl.glVertex3fv(p2.toGLVertex());
+        gl.glTexCoord2d(0.0, 0.0);
+        gl.glVertex3fv(p0.toGLVertex());
+        gl.glTexCoord2d(1.0, 1.0);
+        gl.glVertex3fv(p2.toGLVertex());
+        gl.glTexCoord2d(0.0, 1.0);
+        gl.glVertex3fv(p1.toGLVertex());
+        gl.glTexCoord2d(0.0, 0.0);
+        gl.glVertex3fv(p0.toGLVertex());
+        gl.glTexCoord2d(1.0, 1.0);
+        gl.glVertex3fv(p2.toGLVertex());
+        gl.glTexCoord2d(1.0, 0.0);
+        gl.glVertex3fv(p3.toGLVertex());
+        gl.glTexCoord2d(0.0, 0.0);
+        gl.glVertex3fv(p0.toGLVertex());
+        gl.glTexCoord2d(1.0, 0.0);
+        gl.glVertex3fv(p3.toGLVertex());
+        gl.glTexCoord2d(1.0, 1.0);
+        gl.glVertex3fv(p2.toGLVertex());
 	}
 
 	@SuppressWarnings("unchecked")

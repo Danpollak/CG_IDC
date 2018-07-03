@@ -86,29 +86,31 @@ public class CubicSpline{
         
         
     }
+    
+    // no need for interface
 
-    // probably needs editing
-    public Vec eval(double t){
-        double floor = Math.floor(t);
-        int i = (int) floor;
-        return polys.get(i).eval(t-floor);
-    }
-
-    public Vec tangent(double t){
-        double floor = Math.floor(t);
-        int i = (int) floor;
-        return polys.get(i).deriv().eval(t-floor);
-        
-    }
-
-    public Vec normal(double t){
-
-        // f' X f'' X f'
-        double floor = Math.floor(t);
-        int i = (int) floor;
-        return polys.get(i).normal(t - floor);
-        
-    }
+//    // probably needs editing
+//    public Vec eval(double t){
+//        double floor = Math.floor(t);
+//        int i = (int) floor;
+//        return polys.get(i).eval(t-floor);
+//    }
+//
+//    public Vec tangent(double t){
+//        double floor = Math.floor(t);
+//        int i = (int) floor;
+//        return polys.get(i).deriv().eval(t-floor);
+//        
+//    }
+//
+//    public Vec normal(double t){
+//
+//        // f' X f'' X f'
+//        double floor = Math.floor(t);
+//        int i = (int) floor;
+//        return polys.get(i).normal(t - floor);
+//        
+//    }
 
     
     public class PolyVec{
@@ -127,24 +129,39 @@ public class CubicSpline{
             return new PolyVec(x.deriv(), y.deriv(), z.deriv());
         }
 
-        public Vec eval(double t){
-            return new Vec( x.eval(t), y.eval(t),z.eval(t));
+        public Point position(double t){
+        	double px = this.x.eval(t);
+        	double py = this.y.eval(t);
+        	double pz = this.z.eval(t);
+            return new Point(px,py,pz);
+        }
+        
+        public Vec tangent(double t) {
+        	double dpx = this.x.deriv().eval(t);
+        	double dpy = this.y.deriv().eval(t);
+        	double dpz = this.z.deriv().eval(t);
+            return new Vec(dpx,dpy,dpz);
+        }
+        
+        public Vec normal(double t){
+        	Vec dt = this.tangent(t);
+        	double ddpx = this.x.deriv().deriv().eval(t);
+        	double ddpy = this.y.deriv().deriv().eval(t);
+        	double ddpz = this.z.deriv().deriv().eval(t);
+            Vec ddt = new Vec(ddpx,ddpy,ddpz);
+            Vec normal = dt.cross(ddt).cross(dt).normalize();
+            return normal;
         }
 
         public double length(){
             double sum = 0;
             for(double t = 0 ; t < 2000 ; t++){
-                sum += eval(t/2000).add(eval((t+1)/2000).neg()).norm();
+            	Point p0 = this.position(t/2000);
+            	Point p1 = this.position((t+1)/2000);
+            	double l = p0.sub(p1).length();
+                sum += l;
             }
             return sum;
-        }
-
-        public Vec normal(double t){
-            PolyVec dt = this.deriv();
-            PolyVec ddt = dt.deriv();
-            Vec normal = dt.eval(t).cross(ddt.eval(t)).cross(dt.eval(t));
-            return normal.normalize();
-
         }
 
         public String toString(){
@@ -155,9 +172,10 @@ public class CubicSpline{
         }
     }
     
+    
+ // a polynomial of the sort P(t)=a*t^3+b*t^2+c*t+d
     class CubicPolynomial{
         
-        // a polynomial of the sort P(t)=a*t^3+b*t^2+c*t+d
         double a;
         double b;
         double c;
