@@ -17,7 +17,7 @@ import edu.cg.algebra.CubicSpline;
 import edu.cg.algebra.Point;
 import edu.cg.algebra.Vec;
 import edu.cg.algebra.CubicSpline.PolyVec;
-import edu.cg.algebra.CubicSpline;
+
 
 public class Track implements IRenderable {
 	private IRenderable vehicle;
@@ -26,7 +26,8 @@ public class Track implements IRenderable {
 	private Texture texTrack = null;
 	private CubicSpline curve;
 	private double t = 0;
-	private double vel = 1;
+	private double vel = 0.025;
+	private int currSeg =0;
 	
 	public Track(IRenderable vehicle, CyclicList<Point> trackPoints) {
 		this.vehicle = vehicle;
@@ -77,12 +78,37 @@ public class Track implements IRenderable {
 		gl.glPushMatrix();
 		
 		//TODO: implement vehicle translations and rotations here...
+		PolyVec seg = curve.polys.get(currSeg);
+		
+		Point pos = seg.position(t);
+		Vec up = seg.normal(t);
+		Vec forward = seg.tangent(t);
+		Vec right = up.cross(forward);
+		gl.glTranslatef(pos.x, pos.y, pos.z);
+		
+		double[] mat = {
+				right.neg().x,right.neg().y,right.neg().z,0,
+				up.x,up.y,up.z,0,
+				forward.x,forward.y,forward.z,0,
+				0,0,0,1};
+		gl.glMultMatrixd(mat, 0);
+		
 		
 		gl.glScaled(.15, .15, .15);
 		gl.glTranslated(0,.35,0);
 		
 		vehicle.render(gl);
 		gl.glPopMatrix();
+		
+		double dt = vel/seg.length();
+		t+= dt;
+		if (t > 1) {
+			t=0;
+			currSeg++;
+		} else if(t < 0) {
+			t=1;
+			currSeg--;
+		}
 	}
 
 	private void renderField(GL2 gl) {
@@ -137,11 +163,10 @@ public class Track implements IRenderable {
 		gl.glBegin(GL2.GL_TRIANGLES);
 		
 		CyclicList<PolyVec> segmants = this.curve.polys;
-		
 		for(PolyVec segmant : segmants) {
 			double segmantLength = segmant.length();
 			double numOfBoards = (int)(segmantLength / 0.1) + 1;
-			double dt = 1 / segmantLength;
+			double dt = 1 / numOfBoards;
 			double t=0;
 			for(int i=0;i<numOfBoards;i++) {
 				this.renderTrackBoard(gl, segmant, t, dt);
@@ -200,12 +225,13 @@ public class Track implements IRenderable {
 		switch(type) {
 		case KeyEvent.VK_UP:
 			//increase the locomotive velocity
-			vel += 1;
+			vel += 0.005;
+			
 			break;
 			
 		case KeyEvent.VK_DOWN:
 			//decrease the locomotive velocity
-			vel -= 1;
+			vel -= 0.005;
 			break;
 			
 		case KeyEvent.VK_ENTER:
@@ -235,9 +261,18 @@ public class Track implements IRenderable {
 
 	@Override
 	public void setCamera(GL2 gl) {
-		//You should use:
-//		GLU glu = new GLU();
-//		glu.gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
+		
+		PolyVec seg = curve.polys.get(currSeg);
+		
+		Point center = seg.position(t);
+		Vec up = seg.normal(t);
+		Vec forward = seg.tangent(t);
+		Vec right = up.cross(forward);	// is this even needed?
+		
+		Point eye = center.add(forward.mult(-0.25)).add(up.mult(0.25));
+		
+		GLU glu = new GLU();
+		glu.gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
 		//TODO: set the camera here to follow the locomotive...
 	}
 	

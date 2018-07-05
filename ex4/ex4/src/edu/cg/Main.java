@@ -21,12 +21,13 @@ import com.jogamp.opengl.awt.GLJPanel;
 
 import edu.cg.models.Empty;
 import edu.cg.models.IRenderable;
+import edu.cg.models.Locomotive;
 import edu.cg.models.Track;
 
 
 public class Main {
 	
-	static IRenderable[] models = {new Track(), new Empty()};
+	static IRenderable[] models = {new Track(), new Locomotive(), new Empty()};
 	static Point prevMouse;
 	static int currentModel;
 	static Frame frame;

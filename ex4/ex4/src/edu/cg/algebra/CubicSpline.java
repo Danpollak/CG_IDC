@@ -8,6 +8,8 @@ public class CubicSpline{
 
     public CyclicList<PolyVec> polys;
     final double length;
+    
+    
 
     /**
      * Constructs a Cubic-Spline object from a given collection of points.
@@ -18,7 +20,7 @@ public class CubicSpline{
      * 
      */
     public CubicSpline(CyclicList<Point> controlPoints){
-        
+     
         // interpolate the points via solving a LES
         int n = controlPoints.size();
         double[][] mat = new double[4*n][4*n];
@@ -37,7 +39,7 @@ public class CubicSpline{
             mat[4*i + 1][4*i + 1] = 1.0;    // eq 2 bi
             mat[4*i + 1][4*i + 2] = 1.0;    // eq 2 ci
             mat[4*i + 1][4*i + 3] = 1.0;    // eq 2 di
-            mat[4*i + 1][(4*(i+1))%(4*n) + 3] = 1.0;    // eq 2 -d(i+1)
+            mat[4*i + 1][(4*(i+1))%(4*n) + 3] = -1.0;    // eq 2 -d(i+1)
 
             mat[4*i + 2][4*i] = 3.0;        // eq 3 ai
             mat[4*i + 2][4*i + 1] = 2.0;    // eq 3 bi
@@ -46,8 +48,10 @@ public class CubicSpline{
 
             mat[4*i + 3][4*i] = 6.0;        // eq 4 ai
             mat[4*i + 3][4*i + 1] = 2.0;    // eq 4 bi
-            mat[4*i + 3][4*i + 1] = -2.0;       // eq 4 -b(i+1)
+            mat[4*i + 3][(4*(i+1))%(4 * n)+1] = -2.0; // eq 4 -b(i+1)
         }
+        
+        
         Matrix matA = new Matrix(mat);
         Matrix xB = new Matrix(xSolVec,4*n);
         Matrix yB = new Matrix(ySolVec,4*n);
@@ -79,12 +83,12 @@ public class CubicSpline{
                       zAns.get(4*i + 2,0),
                        zAns.get(4*i + 3,0)));   // z_i(t)
             polys.add(i, f_i);
+            
             sum += f_i.length();  
         }
         
         this.length = sum;
-        
-        
+          
     }
     
     // no need for interface
@@ -140,7 +144,7 @@ public class CubicSpline{
         	double dpx = this.x.deriv().eval(t);
         	double dpy = this.y.deriv().eval(t);
         	double dpz = this.z.deriv().eval(t);
-            return new Vec(dpx,dpy,dpz);
+            return new Vec(dpx,dpy,dpz).normalize();
         }
         
         public Vec normal(double t){
@@ -155,9 +159,9 @@ public class CubicSpline{
 
         public double length(){
             double sum = 0;
-            for(double t = 0 ; t < 2000 ; t++){
-            	Point p0 = this.position(t/2000);
-            	Point p1 = this.position((t+1)/2000);
+            for(double t = 0 ; t < 1000 ; t++){
+            	Point p0 = this.position(t/1000);
+            	Point p1 = this.position((t+1)/1000);
             	double l = p0.sub(p1).length();
                 sum += l;
             }
