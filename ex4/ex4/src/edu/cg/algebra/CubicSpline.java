@@ -33,19 +33,24 @@ public class CubicSpline{
             ySolVec[4*i] = p_i.y;
             zSolVec[4*i] = p_i.z;
             
+            
+            // eq i := d_i=q_i
             mat[4*i][4*i + 3] = 1.0; // eq 1 di
 
+            // eq i+1 := a_i + b_i + c_i + d_i -d_(i+1) = 0
             mat[4*i + 1][4*i] = 1.0;        // eq 2 ai
             mat[4*i + 1][4*i + 1] = 1.0;    // eq 2 bi
             mat[4*i + 1][4*i + 2] = 1.0;    // eq 2 ci
             mat[4*i + 1][4*i + 3] = 1.0;    // eq 2 di
             mat[4*i + 1][(4*(i+1))%(4*n) + 3] = -1.0;    // eq 2 -d(i+1)
 
+            // eq i+2 := 3a_i + 2b_i + c_i -c_(i+1) = 0
             mat[4*i + 2][4*i] = 3.0;        // eq 3 ai
             mat[4*i + 2][4*i + 1] = 2.0;    // eq 3 bi
             mat[4*i + 2][4*i + 2] = 1.0;    // eq 3 ci
             mat[4*i + 2][(4*(i+1))%(4*n)+ 2] = -1.0;    // eq 3 -ci(i+1)
 
+            // eq i+3 := 6a_i + 2b_i -2b_(i+1) = 0
             mat[4*i + 3][4*i] = 6.0;        // eq 4 ai
             mat[4*i + 3][4*i + 1] = 2.0;    // eq 4 bi
             mat[4*i + 3][(4*(i+1))%(4 * n)+1] = -2.0; // eq 4 -b(i+1)
@@ -91,30 +96,6 @@ public class CubicSpline{
           
     }
     
-    // no need for interface
-
-//    // probably needs editing
-//    public Vec eval(double t){
-//        double floor = Math.floor(t);
-//        int i = (int) floor;
-//        return polys.get(i).eval(t-floor);
-//    }
-//
-//    public Vec tangent(double t){
-//        double floor = Math.floor(t);
-//        int i = (int) floor;
-//        return polys.get(i).deriv().eval(t-floor);
-//        
-//    }
-//
-//    public Vec normal(double t){
-//
-//        // f' X f'' X f'
-//        double floor = Math.floor(t);
-//        int i = (int) floor;
-//        return polys.get(i).normal(t - floor);
-//        
-//    }
 
     
     public class PolyVec{

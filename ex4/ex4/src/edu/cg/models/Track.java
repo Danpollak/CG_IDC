@@ -84,10 +84,11 @@ public class Track implements IRenderable {
 		Vec up = seg.normal(t);
 		Vec forward = seg.tangent(t);
 		Vec right = up.cross(forward);
-		gl.glTranslatef(pos.x, pos.y, pos.z);
+		gl.glTranslatef(pos.x, pos.y, pos.z); // move to curve(t)
 		
+		// rotate from "standard" base to "curve(t)" base
 		double[] mat = {
-				right.neg().x,right.neg().y,right.neg().z,0,
+				right.neg().x,right.neg().y,right.neg().z,0, 
 				up.x,up.y,up.z,0,
 				forward.x,forward.y,forward.z,0,
 				0,0,0,1};
@@ -269,11 +270,11 @@ public class Track implements IRenderable {
 		Vec forward = seg.tangent(t);
 		Vec right = up.cross(forward);	// is this even needed?
 		
-		Point eye = center.add(forward.mult(-0.25)).add(up.mult(0.25));
+		Point eye = center.add(forward.mult(-0.25)).add(up.mult(0.25)); //above and behind
 		
 		GLU glu = new GLU();
 		glu.gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
-		//TODO: set the camera here to follow the locomotive...
+		
 	}
 	
 	@Override
