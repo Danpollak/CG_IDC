@@ -67,14 +67,6 @@ public class Point {
 		return sub(new Point());
 	}
 	
-	public FloatBuffer toGLVertex() {
-	       return FloatBuffer.wrap(this.toArray());
-	    }
-
-	    public float[] toArray() {
-	        return new float[]{this.x, this.y, this.z};
-	    }
-	    
 	public boolean isFinite() {
 		return Ops.isFinite(this);
 	}
