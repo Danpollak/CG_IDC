@@ -68,9 +68,9 @@ public class Track implements IRenderable {
 
 	@Override
 	public void render(GL2 gl) {
-		renderVehicle(gl);
 		renderField(gl);
 		renderTrack(gl);
+		renderVehicle(gl);
 	}
 
 	private void renderVehicle(GL2 gl) {
@@ -83,14 +83,18 @@ public class Track implements IRenderable {
 		Vec forward = seg.tangent(t);
 		Vec right = up.cross(forward);
 		gl.glTranslatef(pos.x, pos.y, pos.z); // move to curve(t)
-
-		// rotate from "standard" base to "curve(t)" base
-		double[] mat = { right.neg().x, right.neg().y, right.neg().z, 0, up.x, up.y, up.z, 0, forward.x, forward.y,
-				forward.z, 0, 0, 0, 0, 1 };
+//
+//		// rotate from "standard" base to "curve(t)" base
+		double[] mat = {
+		right.x, right.y, right.z, 0,
+		up.x, up.y, up.z, 0,
+		forward.x, forward.y,forward.z, 0,
+		0, 0, 0, 1 };
 		gl.glMultMatrixd(mat, 0);
 
 		gl.glScaled(.1, .1, .1);
 		gl.glTranslated(0, .35, 0);
+		gl.glRotated(90, 0, 1, 0);
 
 		vehicle.render(gl);
 		gl.glPopMatrix();
@@ -145,8 +149,8 @@ public class Track implements IRenderable {
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 		gl.glBindTexture(GL2.GL_TEXTURE_2D, texTrack.getTextureObject());
 
-		boolean lightningEnabled;
-		if ((lightningEnabled = gl.glIsEnabled(GL2.GL_LIGHTING)))
+//		boolean lightningEnabled;
+//		if ((lightningEnabled = gl.glIsEnabled(GL2.GL_LIGHTING)))
 			gl.glDisable(GL2.GL_LIGHTING);
 
 		gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
@@ -171,8 +175,8 @@ public class Track implements IRenderable {
 		}
 		gl.glEnd();
 
-		if (lightningEnabled)
-			gl.glEnable(GL2.GL_LIGHTING);
+//		if (lightningEnabled)
+//			gl.glEnable(GL2.GL_LIGHTING);
 
 		gl.glDisable(GL2.GL_BLEND);
 		gl.glDisable(GL2.GL_TEXTURE_2D);
@@ -248,7 +252,7 @@ public class Track implements IRenderable {
 			try {
 				Method m = TrackPoints.class.getMethod("track" + params);
 				trackPoints = (CyclicList<Point>) m.invoke(null);
-				// TODO: replace the track with the new one...
+				curve = new CubicSpline(trackPoints);				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -276,7 +280,6 @@ public class Track implements IRenderable {
 		Point center = seg.position(t);
 		Vec up = seg.normal(t);
 		Vec forward = seg.tangent(t);
-		Vec right = up.cross(forward); // is this even needed?
 
 		Point eye = center.add(forward.mult(-0.25)).add(up.mult(0.25)); // above and behind
 

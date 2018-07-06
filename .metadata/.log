@@ -1303,3 +1303,6 @@ java.lang.IllegalStateException: Registry Directory not available: c:\Program Fi
 	at org.eclipse.oomph.setup.ui.SetupUIPlugin.access$5(SetupUIPlugin.java:416)
 	at org.eclipse.oomph.setup.ui.SetupUIPlugin$1$1.run(SetupUIPlugin.java:253)
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:56)
+
+!ENTRY org.eclipse.jdt.launching 4 150 2018-07-06 17:15:48.359
+!MESSAGE The archive: C:/code/CG_IDC/ex4/ex4/lib/my-locomotive.jar which is referenced by the classpath, does not exist.
